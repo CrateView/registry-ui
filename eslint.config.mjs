@@ -7,5 +7,5 @@ export default withNuxt(
       '@typescript-eslint/no-explicit-any': 'error',
     },
   },
-  { ignores: ['.output/**', 'test-results/**', 'playwright-report/**'] },
+  { ignores: ['vendor/**', '.output/**', 'test-results/**', 'playwright-report/**'] },
 )

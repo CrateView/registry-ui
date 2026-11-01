@@ -6,7 +6,7 @@
     "dev": "nuxt dev --host 127.0.0.1 --port 3000",
     "build": "nuxt build",
     "start": "node .output/server/index.mjs",
-    "postinstall": "nuxt prepare",
+    "postinstall": "node scripts/patch-import-x.mjs && nuxt prepare",
     "typecheck": "nuxt typecheck",
     "lint": "eslint .",
     "test": "vitest run",
@@ -36,7 +36,8 @@
     "prettier": "^3.9.10",
     "typescript": "^5.9.0",
     "vitest": "^5.0.5",
-    "vue-tsc": "^3.1.0"
+    "vue-tsc": "^3.1.0",
+    "deepmerge": "file:vendor/deepmerge"
   },
   "description": "A modern, themeable web UI for Docker and OCI container registries.",
   "homepage": "https://crateview.de",
@@ -51,5 +52,14 @@
     "type": "buymeacoffee",
     "url": "https://buymeacoffee.com/tobiaswaelde"
   },
-  "version": "0.1.1"
+  "version": "0.1.1",
+  "engines": {
+    "node": ">=24.22.2 <25"
+  },
+  "overrides": {
+    "minimatch": "^11.0.3",
+    "glob": "^14.0.3",
+    "esbuild": "^0.28.2",
+    "deepmerge": "$deepmerge"
+  }
 }

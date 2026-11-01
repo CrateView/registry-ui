@@ -1,0 +1,6 @@
+{
+  "name": "deepmerge",
+  "version": "4.3.1-crateview.1",
+  "main": "index.cjs",
+  "license": "MIT"
+}
