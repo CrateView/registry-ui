@@ -119,5 +119,8 @@
   "changelogFailed": "Changelog unavailable.",
   "changelogEmpty": "No releases published yet.",
   "whatsNew": "What’s new",
-  "allReleases": "All GitHub releases"
+  "allReleases": "All GitHub releases",
+  "view": "View",
+  "table": "Table",
+  "grid": "Grid"
 }
