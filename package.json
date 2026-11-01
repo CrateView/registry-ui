@@ -35,7 +35,7 @@
     "eslint": "^10.14.0",
     "prettier": "^3.9.10",
     "typescript": "^5.9.0",
-    "vitest": "^4.0.0",
+    "vitest": "^5.0.5",
     "vue-tsc": "^3.1.0"
   },
   "description": "A modern, themeable web UI for Docker and OCI container registries.",
