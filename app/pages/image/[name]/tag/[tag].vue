@@ -195,10 +195,13 @@ async function remove() {
                   class="panel p-5"
                 >
                   <summary class="flex cursor-pointer items-start justify-between gap-4">
-                    <code class="break-all text-xs leading-relaxed">{{
-                      entry.HistoryDescription?.CreatedBy || t('unknown')
-                    }}</code
-                    ><span class="shrink-0 text-xs text-muted">{{ bytes(entry.Layer?.Size) }}</span>
+                    <CodeBlock
+                      :code="entry.HistoryDescription?.CreatedBy || t('unknown')"
+                      language="bash"
+                      class="min-w-0 flex-1 text-xs leading-relaxed"
+                    /><span class="shrink-0 text-xs text-muted">{{
+                      bytes(entry.Layer?.Size)
+                    }}</span>
                   </summary>
                   <div class="mt-4 space-y-2 text-xs text-muted">
                     <p class="mono break-all">{{ entry.Layer?.Digest }}</p>
@@ -236,11 +239,12 @@ async function remove() {
                   @click="copy(JSON.stringify(documentData, null, 2))"
                   >{{ t('copy') }}</UButton
                 >
-                <pre class="overflow-auto text-xs leading-relaxed">{{
-                  JSON.stringify(documentData, null, 2)
-                }}</pre>
-              </div></RequestState
-            >
+                <CodeBlock
+                  :code="JSON.stringify(documentData, null, 2) ?? ''"
+                  language="json"
+                  class="text-xs leading-relaxed"
+                /></div
+            ></RequestState>
             <div v-else class="panel space-y-5 p-6">
               <h2 class="font-semibold">{{ t('metadata') }}</h2>
               <MarkdownText :text="image.Description || t('noDescription')" />

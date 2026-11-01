@@ -35,7 +35,7 @@ const command = computed(() => {
       class="w-full"
     />
     <div class="rounded-lg bg-muted p-3">
-      <code class="block break-all text-xs leading-relaxed">{{ command }}</code>
+      <CodeBlock :code="command" language="bash" class="text-xs leading-relaxed" />
     </div>
     <UButton icon="i-lucide-copy" color="neutral" variant="outline" block @click="copy(command)">{{
       t('copy')
