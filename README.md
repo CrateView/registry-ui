@@ -23,10 +23,11 @@ The frontend is a SPA. Nitro reads runtime ENV and talks to the registry server-
 ## Run the complete stack
 
 ```sh
-docker compose up --build -d
+docker compose pull
+docker compose up -d
 ```
 
-Compose starts `registry:3.1.2` and the frontend, exposes only http://localhost:3000 and persists registry storage in the `registry-data` volume. CLI example:
+Compose pulls the public `ghcr.io/crateview/registry-ui:v0.1.0` image (Linux amd64) and starts `registry:3.1.2` and the frontend, exposes only http://localhost:3000 and persists registry storage in the `registry-data` volume. CLI example:
 
 ```sh
 docker tag alpine:latest localhost:3000/alpine:latest
@@ -98,3 +99,28 @@ Dependabot checks npm dependencies, Dockerfile and Compose images, and GitHub Ac
 ## Brand assets
 
 The Crateview mark combines a container crate and a C-shaped viewing aperture. The transparent master and a UI-sized version live in `public/branding/`. The same mark is used for `public/favicon.ico` (16/32/48 px) and the Apple touch icon. Branding remains replaceable through the existing environment variables.
+
+## Docker updates and source builds
+
+Set `CRATEVIEW_VERSION` in `.env` to a released `v`-prefixed tag (initially `v0.1.0`). Review release notes before updating:
+
+```sh
+docker compose pull frontend
+docker compose up -d --no-deps frontend
+```
+
+To roll back, restore the previous `CRATEVIEW_VERSION` and repeat these commands. Keep the runtime environment and existing data volumes. For a local source build instead:
+
+```sh
+docker compose -f compose.yaml -f compose.build.yaml up --build -d
+```
+
+## Versioning and releases
+
+Both applications release independently. Run `npm run changeset` for a user-visible change and commit the generated file. Choose a patch, minor or major bump. The workflow maintains a version PR, using `npm run version` to update the package version, lockfile and changelog. Merge that PR to publish the release; do not use `npm version`.
+
+Releases on `main` run the CI checks before publishing to GHCR with `v<version>`, `latest` and `sha-...` tags. Only after verifying the image does the workflow create the Git tag and GitHub release. The initial `0.1.0` release is bootstrapped without a changeset. Rerun the Release workflow after a transient failure; existing tags and releases are preserved. Packages remain private to npm and are never uploaded there. The `release` script exposes the Changesets CLI publishing command; the Docker workflow manages application releases itself.
+
+Configure `CHANGESETS_PR_TOKEN` as an Actions secret with repository contents and pull-request write access. A fine-grained PAT must cover this repository. This lets release PRs trigger normal CI. Without it, the workflow falls back to `GITHUB_TOKEN`; GitHub must allow Actions to create PRs, and CI must be dispatched manually on the version branch because bot-created PRs do not trigger workflows. GHCR publishing uses `GITHUB_TOKEN` with `packages:write`.
+
+Set the `registry-ui` GHCR package visibility to **public** in the organization package settings after its first publication; GitHub creates new packages private by default. Anonymous Docker pulls should succeed. Keep the separate website package private.

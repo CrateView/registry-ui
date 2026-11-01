@@ -1,0 +1,5 @@
+services:
+  frontend:
+    image: crateview-registry-ui:local
+    build: .
+    pull_policy: build

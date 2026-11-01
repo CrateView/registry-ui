@@ -8,7 +8,7 @@ services:
       - registry-data:/var/lib/registry
     restart: unless-stopped
   frontend:
-    build: .
+    image: ghcr.io/crateview/registry-ui:${CRATEVIEW_VERSION:-v0.1.0}
     ports:
       - '127.0.0.1:3000:3000'
     environment:

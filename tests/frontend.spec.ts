@@ -21,7 +21,7 @@ test('official registry: catalog, tags, manifest, config and layer history', asy
   await page.getByRole('link', { name: 'latest', exact: true }).click()
   await expect(page.getByText(/alpine-minirootfs/).first()).toBeVisible()
   await expect(
-    page.getByText('docker pull localhost:3000/alpine:latest', { exact: true }),
+    page.getByText(`docker pull ${new URL(page.url()).host}/alpine:latest`, { exact: true }),
   ).toBeVisible()
   await expect(page.getByRole('button', { name: 'Vulnerabilities', exact: true })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Delete manifest', exact: true })).toHaveCount(0)
