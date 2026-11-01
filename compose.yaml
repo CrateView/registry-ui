@@ -26,8 +26,8 @@ services:
       NUXT_PUBLIC_BRAND_FAVICON: ${NUXT_PUBLIC_BRAND_FAVICON:-/favicon.ico}
       NUXT_PUBLIC_BRAND_TITLE_TEMPLATE: ${NUXT_PUBLIC_BRAND_TITLE_TEMPLATE:-}
       NUXT_PUBLIC_BRAND_PRODUCT_URL: ${NUXT_PUBLIC_BRAND_PRODUCT_URL:-https://crateview.de}
-      NUXT_PUBLIC_BRAND_DOCS_URL: ${NUXT_PUBLIC_BRAND_DOCS_URL:-https://github.com/CrateView/registry-ui#readme}
-      NUXT_PUBLIC_BRAND_REPOSITORY_URL: ${NUXT_PUBLIC_BRAND_REPOSITORY_URL:-https://github.com/CrateView/registry-ui}
+      NUXT_PUBLIC_BRAND_DOCS_URL: ${NUXT_PUBLIC_BRAND_DOCS_URL:-https://github.com/crateview/registry-ui#readme}
+      NUXT_PUBLIC_BRAND_REPOSITORY_URL: ${NUXT_PUBLIC_BRAND_REPOSITORY_URL:-https://github.com/crateview/registry-ui}
     depends_on:
       - registry
     restart: unless-stopped

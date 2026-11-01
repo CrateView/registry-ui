@@ -38,10 +38,10 @@
   "homepage": "https://crateview.de",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CrateView/registry-ui.git"
+    "url": "git+https://github.com/crateview/registry-ui.git"
   },
   "bugs": {
-    "url": "https://github.com/CrateView/registry-ui/issues"
+    "url": "https://github.com/crateview/registry-ui/issues"
   },
   "funding": {
     "type": "buymeacoffee",
