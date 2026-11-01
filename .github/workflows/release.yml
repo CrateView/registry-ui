@@ -48,14 +48,26 @@ jobs:
           push-git-tags: false
           pr-title: 'chore: release application'
           commit-message: 'chore: version application'
-      - name: Run CI on the release PR
+      - name: Start native CI on the release PR
         if: steps.changesets.outputs.pr-number != ''
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ steps.changesets.outputs.pr-number }}
         run: |
-          branch="$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')"
-          gh workflow run ci.yml --ref "$branch"
+          head="$(gh pr view "$PR_NUMBER" --json headRefOid --jq '.headRefOid')"
+          for attempt in {1..12}; do
+            run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?event=pull_request&head_sha=$head&per_page=1" --jq '.workflow_runs[0] // empty | "\(.id) \(.conclusion // "")"')"
+            if [ -n "$run" ]; then
+              read -r run_id conclusion <<< "$run"
+              if [ "$conclusion" = 'action_required' ]; then
+                gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/runs/$run_id/approve"
+              fi
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'Timed out waiting for the version PR CI event; rerun the Release workflow.' >&2
+          exit 1
       - name: Determine release state
         id: state
         if: steps.changesets.outputs.has-changesets == 'false'
