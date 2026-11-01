@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const props = defineProps<{ collapsed?: boolean }>()
+const emit = defineEmits<{ expand: [] }>()
 const { t } = useI18n()
 const registry = useRegistry()
 const route = useRoute()
@@ -50,7 +52,7 @@ onBeforeUnmount(() => {
   clearTimeout(timer)
   sequence++
 })
-function focusSearch(event: KeyboardEvent) {
+async function focusSearch(event: KeyboardEvent) {
   if (event.defaultPrevented || event.isComposing || event.altKey || event.metaKey) return
   const controlK = event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'k'
   const slash = !event.ctrlKey && event.key === '/'
@@ -64,10 +66,14 @@ function focusSearch(event: KeyboardEvent) {
     )
   )
     return
-  const input = searchInput.value?.inputRef
-  if (!input) return
   event.preventDefault()
-  input.focus()
+  await expandSearch()
+}
+async function expandSearch() {
+  emit('expand')
+  await nextTick()
+  const input = searchInput.value?.inputRef
+  input?.focus()
 }
 function submit() {
   focused.value = false
@@ -79,7 +85,16 @@ function onFocusOut(event: FocusEvent) {
 }
 </script>
 <template>
+  <UButton
+    v-if="props.collapsed"
+    icon="i-lucide-search"
+    color="neutral"
+    variant="ghost"
+    :aria-label="t('search')"
+    @click="expandSearch"
+  />
   <form
+    v-show="!props.collapsed"
     class="relative w-full max-w-xl"
     role="search"
     @focusout="onFocusOut"
