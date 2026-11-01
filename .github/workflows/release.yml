@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
+      actions: write
       contents: write
       packages: write
       pull-requests: write
@@ -42,11 +43,19 @@ jobs:
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2
         with:
           version-script: npm run version
-          github-token: ${{ secrets.CHANGESETS_PR_TOKEN || github.token }}
+          github-token: ${{ github.token }}
           create-github-releases: false
           push-git-tags: false
           pr-title: 'chore: release application'
           commit-message: 'chore: version application'
+      - name: Run CI on the release PR
+        if: steps.changesets.outputs.pr-number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.changesets.outputs.pr-number }}
+        run: |
+          branch="$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')"
+          gh workflow run ci.yml --ref "$branch"
       - name: Determine release state
         id: state
         if: steps.changesets.outputs.has-changesets == 'false'
