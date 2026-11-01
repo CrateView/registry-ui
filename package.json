@@ -30,7 +30,7 @@
     "@nuxt/eslint": "^1.15.0",
     "@playwright/test": "^1.58.0",
     "@types/markdown-it": "^14.1.0",
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.6",
     "bcryptjs": "^3.0.3",
     "eslint": "^10.14.0",
     "prettier": "^3.9.10",
