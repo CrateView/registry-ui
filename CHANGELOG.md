@@ -1,5 +1,11 @@
 # @crateview/registry-ui
 
+## 0.3.0
+
+### Minor Changes
+
+- 9312ac6: Add theme-aware syntax highlighting with safe plain-text fallback for code blocks.
+
 ## 0.2.1
 
 ### Patch Changes
