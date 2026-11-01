@@ -112,5 +112,12 @@
   "unsupportedAuth": "Diese Registry verwendet einen externen Token-Dienst. Das UI unterstützt derzeit anonymen Zugriff und native Basic Auth.",
   "referrersUnsupported": "Diese Registry unterstützt die OCI-Referrers-API nicht.",
   "manifest": "Manifest",
-  "config": "Konfiguration"
+  "config": "Konfiguration",
+  "changelogTitle": "Changelog",
+  "openChangelog": "Changelog für v{version} öffnen",
+  "updateAvailable": "Update verfügbar: v{version}",
+  "changelogFailed": "Changelog nicht verfügbar.",
+  "changelogEmpty": "Noch keine Releases veröffentlicht.",
+  "whatsNew": "Was ist neu?",
+  "allReleases": "Alle GitHub-Releases"
 }
