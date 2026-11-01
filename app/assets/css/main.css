@@ -18,10 +18,10 @@ select {
 .page {
   max-width: 1440px;
   margin-inline: auto;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 .page-title {
-  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-size: clamp(1.5rem, 2.5vw, 1.875rem);
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.2;
@@ -45,14 +45,14 @@ select {
   font-size: 0.875rem;
 }
 .data-table th {
-  padding: 0.85rem 1rem;
+  padding: 0.625rem 1rem;
   font-weight: 500;
   color: var(--ui-text-muted);
   background: var(--ui-bg-muted);
   font-size: 0.75rem;
 }
 .data-table td {
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   border-top: 1px solid var(--ui-border);
   vertical-align: top;
 }

@@ -3,14 +3,18 @@ const { t } = useI18n()
 const route = useRoute()
 const config = useRuntimeConfig().public
 const registry = useRegistry()
-const collapsed = ref(false)
-const mobileOpen = ref(false)
 const ready = ref(false)
 const failure = ref('')
 const links = computed(() => [
   { label: t('overview'), icon: 'i-lucide-layout-dashboard', to: '/home' },
   { label: t('explore'), icon: 'i-lucide-boxes', to: '/explore' },
 ])
+const title = computed(() => {
+  if (route.path === '/login') return t('signIn')
+  if (route.path.startsWith('/image/'))
+    return [route.params.name, route.params.tag].filter(Boolean).join(' / ')
+  return route.path === '/explore' ? t('explore') : t('overview')
+})
 const external = computed(() =>
   [
     { label: t('product'), url: config.brandProductUrl },
@@ -30,12 +34,6 @@ async function initialize() {
   }
 }
 onMounted(initialize)
-watch(
-  () => route.fullPath,
-  () => {
-    mobileOpen.value = false
-  },
-)
 async function signOut() {
   try {
     await registry.logout()
@@ -45,53 +43,51 @@ async function signOut() {
 }
 </script>
 <template>
-  <div class="min-h-screen bg-muted/35 text-default">
-    <button
-      v-if="mobileOpen"
-      :aria-label="t('close')"
-      class="fixed inset-0 z-40 bg-black/40 lg:hidden"
-      @click="mobileOpen = false"
-    />
-    <aside
-      id="registry-sidebar"
-      class="fixed inset-y-0 left-0 z-50 flex flex-col border-r border-default bg-default transition-[width,transform] duration-200"
-      :class="[
-        collapsed ? 'lg:w-20' : 'lg:w-64',
-        mobileOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64 lg:translate-x-0',
-      ]"
+  <UDashboardGroup
+    unit="rem"
+    storage="local"
+    storage-key="crateview-dashboard"
+    class="text-default"
+  >
+    <UDashboardSidebar
+      id="registry"
+      collapsible
+      resizable
+      :default-size="16"
+      :min-size="14"
+      :max-size="22"
+      :collapsed-size="4"
+      class="bg-default"
+      :ui="{ footer: 'flex-col items-stretch border-t border-default' }"
     >
-      <div class="flex h-20 items-center px-6">
-        <BrandMark :compact="collapsed && !mobileOpen" />
-      </div>
-      <div class="px-5 pb-4 pt-5">
-        <span v-if="!collapsed || mobileOpen" class="eyebrow">{{ t('workspace') }}</span>
-      </div>
-      <nav class="flex-1 space-y-1 px-3" :aria-label="t('navigation')">
-        <NuxtLink
-          v-for="link in links"
-          :key="link.to"
-          :to="link.to"
-          :title="link.label"
-          class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors"
-          :class="
-            route.fullPath === link.to
-              ? 'bg-primary/10 text-primary'
-              : 'text-muted hover:bg-muted hover:text-highlighted'
-          "
-          ><UIcon :name="link.icon" class="size-5 shrink-0" /><span
-            v-if="!collapsed || mobileOpen"
-            >{{ link.label }}</span
-          ></NuxtLink
-        >
-      </nav>
-      <div class="space-y-4 border-t border-default p-4">
-        <div v-show="!collapsed || mobileOpen"><VersionChangelog /></div>
-        <div v-if="!collapsed || mobileOpen" class="flex items-center justify-between gap-3">
-          <ModeSwitch />
-          <LanguageSwitch />
-        </div>
-        <template v-if="!collapsed || mobileOpen"
-          ><a
+      <template #toggle>
+        <UDashboardSidebarToggle :aria-label="t('close')" />
+      </template>
+      <template #header="{ collapsed }">
+        <BrandMark :compact="collapsed" />
+      </template>
+      <template #default="{ collapsed, collapse }">
+        <SearchBox
+          v-if="ready && route.path !== '/login'"
+          :collapsed="collapsed"
+          @expand="collapse(false)"
+        />
+        <UNavigationMenu
+          :items="links"
+          :collapsed="collapsed"
+          orientation="vertical"
+          :aria-label="t('navigation')"
+          tooltip
+        />
+      </template>
+      <template #footer="{ collapsed }">
+        <div v-show="!collapsed" class="space-y-3 py-2">
+          <VersionChangelog />
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <ModeSwitch />
+            <LanguageSwitch />
+          </div>
+          <a
             v-for="link in external"
             :key="link.label"
             :href="safeUrl(link.url)"
@@ -104,76 +100,69 @@ async function signOut() {
             <span
               class="size-1.5 rounded-full"
               :class="ready && !failure ? 'bg-success' : 'bg-error'"
-            />{{ ready && !failure ? t('health') : t('connectionFailed') }}
-          </div></template
-        >
-      </div>
-    </aside>
-    <div class="transition-[padding] duration-200" :class="collapsed ? 'lg:pl-20' : 'lg:pl-64'">
-      <header
-        class="sticky top-0 z-30 flex min-h-20 flex-wrap items-center gap-3 border-b border-default bg-default/95 px-5 py-3 backdrop-blur-sm sm:px-8"
-      >
-        <div class="flex min-w-0 flex-1 items-center gap-3">
-          <UButton
-            :icon="collapsed ? 'i-lucide-panel-left-open' : 'i-lucide-panel-left-close'"
-            color="neutral"
-            variant="ghost"
-            :aria-label="collapsed ? t('expand') : t('collapse')"
-            :aria-expanded="!collapsed"
-            aria-controls="registry-sidebar"
-            class="hidden shrink-0 lg:flex"
-            @click="collapsed = !collapsed"
-          />
-          <UButton
-            icon="i-lucide-menu"
-            color="neutral"
-            variant="ghost"
-            class="shrink-0 lg:hidden"
-            :aria-label="t('navigation')"
-            :aria-expanded="mobileOpen"
-            aria-controls="registry-sidebar"
-            @click="mobileOpen = !mobileOpen"
-          />
-          <SearchBox v-if="ready && route.path !== '/login'" />
-        </div>
-        <div class="ml-auto flex items-center gap-2 sm:gap-3">
-          <UDropdownMenu
-            v-if="registry.authenticated.value"
-            :items="[
-              { label: registry.user.value, type: 'label' },
-              { label: t('signOut'), icon: 'i-lucide-log-out', onSelect: signOut },
-            ]"
-          >
-            <UButton
-              color="neutral"
-              variant="outline"
-              icon="i-lucide-user-round"
-              :aria-label="t('account')"
             />
-          </UDropdownMenu>
-          <UButton
-            v-else-if="registry.info.value?.auth && route.path !== '/login'"
-            to="/login"
-            size="sm"
-            >{{ t('signIn') }}</UButton
-          >
+            {{ ready && !failure ? t('health') : t('connectionFailed') }}
+          </div>
         </div>
-      </header>
-      <main>
-        <div v-if="failure" class="page">
-          <UAlert
-            color="error"
-            icon="i-lucide-circle-alert"
-            :title="t('connectionFailed')"
-            :description="failure"
-          /><UButton class="mt-4" @click="initialize">{{ t('retry') }}</UButton>
-        </div>
-        <slot v-else-if="ready" />
-        <div v-else class="page text-muted" role="status">{{ t('loading') }}</div>
-      </main>
-      <footer class="px-8 py-6 text-xs text-dimmed">
-        {{ config.brandName }} · OCI Distribution
-      </footer>
-    </div>
-  </div>
+      </template>
+    </UDashboardSidebar>
+    <UDashboardPanel id="content" class="bg-muted/35" :ui="{ body: 'p-0 sm:p-0 gap-0' }">
+      <template #header>
+        <UDashboardNavbar
+          :title="title"
+          :as="{ title: 'p' }"
+          class="bg-default/95 backdrop-blur-sm"
+          :ui="{ right: 'gap-3' }"
+        >
+          <template #toggle>
+            <UDashboardSidebarToggle :aria-label="t('navigation')" />
+          </template>
+          <template #leading="{ sidebarCollapsed }">
+            <UDashboardSidebarCollapse
+              :aria-label="sidebarCollapsed?.value ? t('expand') : t('collapse')"
+            />
+          </template>
+          <template #right>
+            <UDropdownMenu
+              v-if="registry.authenticated.value"
+              :items="[
+                { label: registry.user.value, type: 'label' },
+                { label: t('signOut'), icon: 'i-lucide-log-out', onSelect: signOut },
+              ]"
+            >
+              <UButton
+                color="neutral"
+                variant="outline"
+                icon="i-lucide-user-round"
+                :aria-label="t('account')"
+              />
+            </UDropdownMenu>
+            <UButton
+              v-else-if="registry.info.value?.auth && route.path !== '/login'"
+              to="/login"
+              size="sm"
+              >{{ t('signIn') }}</UButton
+            >
+          </template>
+        </UDashboardNavbar>
+      </template>
+      <template #body>
+        <main class="flex-1 min-w-0">
+          <div v-if="failure" class="page">
+            <UAlert
+              color="error"
+              icon="i-lucide-circle-alert"
+              :title="t('connectionFailed')"
+              :description="failure"
+            /><UButton class="mt-4" @click="initialize">{{ t('retry') }}</UButton>
+          </div>
+          <slot v-else-if="ready" />
+          <div v-else class="page text-muted" role="status">{{ t('loading') }}</div>
+        </main>
+        <footer class="px-6 py-4 text-xs text-dimmed">
+          {{ config.brandName }} · OCI Distribution
+        </footer>
+      </template>
+    </UDashboardPanel>
+  </UDashboardGroup>
 </template>
