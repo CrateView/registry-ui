@@ -1,5 +1,11 @@
 # @crateview/registry-ui
 
+## 0.2.0
+
+### Minor Changes
+
+- cbd9f5a: Show repositories in a table by default, group slash-separated names into nested namespaces, and allow switching to the grid view on overview and explore pages.
+
 ## 0.1.2
 
 ### Patch Changes
