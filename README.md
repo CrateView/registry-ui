@@ -18,6 +18,39 @@ npm run dev
 
 UI: http://localhost:3000. Default registry: http://127.0.0.1:5000. Hot module replacement is enabled.
 
+### Local Docker registry with demo images
+
+Run these commands from `registry-ui`. This development stack exposes an anonymous
+registry only on `127.0.0.1:5050`, avoiding the macOS service on port 5000. Images
+persist in the `dev-registry-data` Docker volume.
+
+```sh
+docker compose -p crateview-dev -f compose.dev.yaml up -d
+curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:5050/v2/
+
+# Pull only if alpine:latest is not already available locally.
+docker image inspect alpine:latest >/dev/null 2>&1 || docker pull alpine:latest
+for repository in alpine demo/backend demo/frontend; do
+  for tag in latest v1; do
+    docker tag alpine:latest "localhost:5050/$repository:$tag"
+    docker push "localhost:5050/$repository:$tag" || exit 1
+  done
+done
+
+# Override the upstream without changing an existing .env file.
+NUXT_REGISTRY_UPSTREAM=http://127.0.0.1:5050 npm run dev
+```
+
+Open http://localhost:3000. The catalog contains `alpine`, `demo/backend` and
+`demo/frontend`, each with `latest` and `v1` tags sharing the same Alpine image.
+The separate E2E fixture and seed script continue to use port 5001.
+
+Stop the dev server with Ctrl+C. Stop the registry while preserving its data:
+
+```sh
+docker compose -p crateview-dev -f compose.dev.yaml down
+```
+
 The frontend is a SPA. Nitro reads runtime ENV and talks to the registry server-side, avoiding browser CORS requirements. `/v2/**` is a streaming proxy for Docker/Podman/ORAS clients; `/api/registry/**` derives UI metadata from catalog, tags, manifests and config blobs. Raw manifest and config JSON can be inspected and copied from image details.
 
 ## Run the complete stack
