@@ -112,7 +112,7 @@ function search() {
       :error="error"
       :empty="!repos.length && !images.length"
       @retry="load"
-      ><RepoGrid v-if="repos.length" :repos="repos" /><ImageTable
+      ><RepoOverview v-if="repos.length" :repos="repos" /><ImageTable
         v-if="images.length"
         :images="images" /></RequestState
     ><UPagination

@@ -56,7 +56,7 @@ onMounted(load)
         >
       </div>
       <RequestState :pending="pending" :error="error" :empty="!repos.length" @retry="load"
-        ><RepoGrid :repos="repos"
+        ><RepoOverview :repos="repos"
       /></RequestState>
     </section>
   </div>
