@@ -1,0 +1,50 @@
+{
+  "name": "@crateview/registry-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --host 127.0.0.1 --port 3000",
+    "build": "nuxt build",
+    "start": "node .output/server/index.mjs",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.0",
+    "@nuxt/ui": "4.12.0",
+    "@nuxtjs/i18n": "10.6.0",
+    "markdown-it": "^14.1.0",
+    "nuxt": "4.6.3",
+    "tailwindcss": "^4.1.0"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.15.0",
+    "@playwright/test": "^1.58.0",
+    "@types/markdown-it": "^14.1.0",
+    "@types/node": "^24.19.2",
+    "bcryptjs": "^3.0.3",
+    "eslint": "^10.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0",
+    "vue-tsc": "^3.1.0"
+  },
+  "description": "A modern, themeable web UI for Docker and OCI container registries.",
+  "homepage": "https://crateview.de",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CrateView/registry-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CrateView/registry-ui/issues"
+  },
+  "funding": {
+    "type": "buymeacoffee",
+    "url": "https://buymeacoffee.com/tobiaswaelde"
+  }
+}

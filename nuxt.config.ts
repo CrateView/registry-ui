@@ -1,0 +1,56 @@
+export default defineNuxtConfig({
+  compatibilityDate: '2026-11-01',
+  modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/eslint'],
+  css: ['~/assets/css/main.css'],
+  ssr: false,
+  devtools: { enabled: false },
+  ui: { fonts: false },
+  colorMode: {
+    preference: 'system',
+    fallback: 'light',
+    storage: 'localStorage',
+    storageKey: 'registry-ui-color-mode',
+  },
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', language: 'en-US', file: 'en.json', name: 'English' },
+      { code: 'de', language: 'de-DE', file: 'de.json', name: 'Deutsch' },
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'registry-ui-language',
+      redirectOn: 'all',
+      fallbackLocale: 'en',
+    },
+  },
+  runtimeConfig: {
+    registryUpstream: 'http://127.0.0.1:5000',
+    registryDeleteEnabled: false,
+    sessionPassword: '',
+    public: {
+      themePrimary: '',
+      themeNeutral: '',
+      themeRadius: '',
+      themeFontFamily: '',
+      brandName: 'Crateview',
+      brandDescription: 'A modern interface for Docker and OCI container registries.',
+      brandLogoLight: '/branding/crateview-mark-256.png',
+      brandLogoDark: '/branding/crateview-mark-256.png',
+      brandFavicon: '/favicon.ico',
+      brandTitleTemplate: '',
+      brandProductUrl: 'https://crateview.de',
+      brandDocsUrl: 'https://github.com/CrateView/registry-ui#readme',
+      brandRepositoryUrl: 'https://github.com/CrateView/registry-ui',
+    },
+  },
+  app: {
+    head: {
+      title: 'Crateview',
+      meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
+    },
+  },
+  typescript: { strict: true },
+  eslint: { config: { stylistic: false } },
+})

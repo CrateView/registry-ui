@@ -1,0 +1,100 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+@theme static {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+html {
+  background: var(--ui-bg);
+}
+body {
+  margin: 0;
+}
+button,
+a,
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+.page {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding: 2rem;
+}
+.page-title {
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+.eyebrow {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--ui-text-muted);
+}
+.panel {
+  border: 1px solid var(--ui-border);
+  border-radius: calc(var(--ui-radius) * 2);
+  background: var(--ui-bg);
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+.data-table th {
+  padding: 0.85rem 1rem;
+  font-weight: 500;
+  color: var(--ui-text-muted);
+  background: var(--ui-bg-muted);
+  font-size: 0.75rem;
+}
+.data-table td {
+  padding: 1rem;
+  border-top: 1px solid var(--ui-border);
+  vertical-align: top;
+}
+.data-table tbody tr:hover {
+  background: var(--ui-bg-muted);
+}
+.prose {
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.prose a {
+  color: var(--ui-primary);
+  text-decoration: underline;
+}
+.prose pre {
+  padding: 1rem;
+  background: var(--ui-bg-elevated);
+  overflow: auto;
+  border-radius: var(--ui-radius);
+}
+.prose h1,
+.prose h2,
+.prose h3 {
+  font-weight: 650;
+  margin-block: 1rem 0.5rem;
+}
+.prose ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+.prose p {
+  margin-block: 0.5rem;
+}
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (max-width: 640px) {
+  .page {
+    padding: 1.25rem;
+  }
+  .data-table td,
+  .data-table th {
+    padding: 0.75rem;
+  }
+}
