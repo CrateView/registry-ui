@@ -1,3 +1,5 @@
+import { version } from './package.json'
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-11-01',
   modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/eslint'],
@@ -30,6 +32,7 @@ export default defineNuxtConfig({
     registryDeleteEnabled: false,
     sessionPassword: '',
     public: {
+      appVersion: version,
       themePrimary: '',
       themeNeutral: '',
       themeRadius: '',

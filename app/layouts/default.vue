@@ -85,6 +85,7 @@ async function signOut() {
         >
       </nav>
       <div class="space-y-4 border-t border-default p-4">
+        <div v-show="!collapsed || mobileOpen"><VersionChangelog /></div>
         <div v-if="!collapsed || mobileOpen" class="flex items-center justify-between gap-3">
           <ModeSwitch />
           <LanguageSwitch />
