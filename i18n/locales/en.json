@@ -1,4 +1,8 @@
 {
+  "settings": "Settings",
+  "settingsDescription": "Customize the appearance and language of your workspace.",
+  "themeDescription": "Choose light, dark, or follow your system appearance.",
+  "languageDescription": "Choose the language used throughout the interface.",
   "overview": "Overview",
   "explore": "Explore",
   "registry": "Registry",
@@ -122,5 +126,18 @@
   "allReleases": "All GitHub releases",
   "view": "View",
   "table": "Table",
-  "grid": "Grid"
+  "grid": "Grid",
+  "about": "About",
+  "dependencyLicenses": "Dependency licenses",
+  "dependencyLicensesDescription": "All direct and transitive dependencies, including development tools. License texts and notices are provided where available.",
+  "licensesLoading": "Loading licenses…",
+  "licensesLoadError": "Could not load dependency licenses.",
+  "licensesRetry": "Retry",
+  "licensesSearch": "Search packages, versions or licenses…",
+  "licensesCount": "{count} of {total} dependency versions",
+  "licensesEmpty": "No dependencies found.",
+  "licenseUnknown": "License unknown",
+  "licenseProject": "Project website",
+  "licenseTextMissing": "License text unavailable in the installed package.",
+  "aboutVersion": "Version"
 }

@@ -18,6 +18,25 @@ npm run dev
 
 UI: http://localhost:3000. Default registry: http://127.0.0.1:5000. Hot module replacement is enabled.
 
+### Dependency licenses
+
+Settings includes an About section with the application version and searchable dependency
+licenses, including development tools and transitive packages. Expand a package to read
+its original license texts and notices. Missing metadata or texts are explicitly labeled.
+
+`npm run dev` and `npm run build` automatically generate
+`public/dependency-licenses.json` from `package-lock.json` and locally installed packages.
+The generated file is ignored by Git and included in the production output, including
+Docker builds. To refresh it manually after changing dependencies:
+
+```sh
+npm run licenses:generate
+```
+
+Packages that are not installed on the build platform remain in the list using their
+lockfile metadata; their license texts are unavailable. No external license service is
+queried.
+
 ### Local Docker registry with demo images
 
 Run these commands from `registry-ui`. This development stack exposes an anonymous

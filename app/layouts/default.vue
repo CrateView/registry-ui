@@ -8,20 +8,29 @@ const failure = ref('')
 const links = computed(() => [
   { label: t('overview'), icon: 'i-lucide-layout-dashboard', to: '/home' },
   { label: t('explore'), icon: 'i-lucide-boxes', to: '/explore' },
+  { label: t('settings'), icon: 'i-lucide-settings', to: '/settings' },
 ])
 const title = computed(() => {
   if (route.path === '/login') return t('signIn')
   if (route.path.startsWith('/image/'))
     return [route.params.name, route.params.tag].filter(Boolean).join(' / ')
+  if (route.path === '/settings') return t('settings')
   return route.path === '/explore' ? t('explore') : t('overview')
 })
 const external = computed(() =>
   [
-    { label: t('product'), url: config.brandProductUrl },
-    { label: t('documentation'), url: config.brandDocsUrl },
-    { label: t('source'), url: config.brandRepositoryUrl },
-  ].filter((link) => safeUrl(link.url)),
+    { label: t('documentation'), icon: 'i-lucide-book-open', to: safeUrl(config.brandDocsUrl) },
+    { label: 'GitHub', icon: 'i-lucide-github', to: safeUrl(config.brandRepositoryUrl) },
+  ]
+    .filter((link) => link.to)
+    .map((link) => ({
+      ...link,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      trailingIcon: 'i-lucide-arrow-up-right',
+    })),
 )
+const connected = computed(() => ready.value && !failure.value)
 async function initialize() {
   failure.value = ''
   try {
@@ -58,7 +67,7 @@ async function signOut() {
       :max-size="22"
       :collapsed-size="4"
       class="bg-default"
-      :ui="{ footer: 'flex-col items-stretch border-t border-default' }"
+      :ui="{ footer: 'border-t border-default' }"
     >
       <template #toggle>
         <UDashboardSidebarToggle :aria-label="t('close')" />
@@ -78,31 +87,44 @@ async function signOut() {
           orientation="vertical"
           :aria-label="t('navigation')"
           tooltip
+          popover
+        />
+        <UNavigationMenu
+          :items="external"
+          :collapsed="collapsed"
+          orientation="vertical"
+          class="mt-auto"
+          tooltip
         />
       </template>
       <template #footer="{ collapsed }">
-        <div v-show="!collapsed" class="space-y-3 py-2">
-          <VersionChangelog />
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <ModeSwitch />
-            <LanguageSwitch />
+        <UTooltip v-if="collapsed" :text="connected ? t('health') : t('connectionFailed')">
+          <div
+            class="flex h-10 w-full items-center justify-center"
+            role="status"
+            :aria-label="connected ? t('health') : t('connectionFailed')"
+          >
+            <span class="size-2 rounded-full" :class="connected ? 'bg-success' : 'bg-error'" />
           </div>
-          <a
-            v-for="link in external"
-            :key="link.label"
-            :href="safeUrl(link.url)"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex items-center justify-between text-xs text-muted hover:text-primary"
-            >{{ link.label }}<UIcon name="i-lucide-arrow-up-right"
-          /></a>
-          <div class="flex items-center gap-2 text-xs text-muted">
+        </UTooltip>
+        <div
+          v-show="!collapsed"
+          class="w-full min-w-0 space-y-3 rounded-lg border p-3"
+          :class="connected ? 'border-success/20 bg-success/5' : 'border-error/20 bg-error/5'"
+        >
+          <div
+            class="flex items-center gap-2 text-xs font-medium"
+            :class="connected ? 'text-success' : 'text-error'"
+            role="status"
+          >
             <span
-              class="size-1.5 rounded-full"
-              :class="ready && !failure ? 'bg-success' : 'bg-error'"
+              class="size-1.5 shrink-0 rounded-full"
+              :class="connected ? 'bg-success' : 'bg-error'"
             />
-            {{ ready && !failure ? t('health') : t('connectionFailed') }}
+            {{ connected ? t('health') : t('connectionFailed') }}
           </div>
+          <p class="truncate text-xs text-muted">{{ config.brandName }}</p>
+          <VersionChangelog />
         </div>
       </template>
     </UDashboardSidebar>

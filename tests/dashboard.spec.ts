@@ -47,5 +47,40 @@ test('mobile sidebar closes after navigation without horizontal overflow', async
   await dialog.getByRole('link', { name: 'Explore', exact: true }).click()
   await expect(page).toHaveURL(/explore/)
   await expect(dialog).toBeHidden()
+  await page.getByRole('button', { name: 'Navigation', exact: true }).click()
+  await dialog.getByRole('link', { name: 'Settings', exact: true }).click()
+  await expect(page).toHaveURL(/\/settings$/)
+  await expect(dialog).toBeHidden()
+  await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Language', exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
+})
+
+test('settings controls persist theme and language across navigation and reload', async ({
+  page,
+}) => {
+  await page.goto('/home')
+  const sidebar = page.locator('#crateview-dashboard-sidebar-registry')
+  await expect(sidebar.getByRole('button', { name: 'Color mode', exact: true })).toHaveCount(0)
+  await expect(sidebar.getByRole('link', { name: 'Documentation', exact: true })).toHaveAttribute(
+    'target',
+    '_blank',
+  )
+  await expect(sidebar.getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute(
+    'target',
+    '_blank',
+  )
+  await sidebar.getByRole('link', { name: 'Settings', exact: true }).click()
+  await expect(page).toHaveURL(/\/settings$/)
+  await page.getByRole('button', { name: 'Color mode', exact: true }).click()
+  await page.getByRole('option', { name: 'Dark', exact: true }).click()
+  await expect(page.locator('html')).toHaveClass(/dark/)
+  await page.getByRole('button', { name: 'Language', exact: true }).click()
+  await page.getByRole('option', { name: /Deutsch/ }).click()
+  await expect(page.getByRole('heading', { name: 'Einstellungen', exact: true })).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Einstellungen', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Farbmodus', exact: true })).toContainText('Dunkel')
+  await sidebar.getByRole('link', { name: 'Übersicht', exact: true }).click()
+  await expect(page.locator('html')).toHaveClass(/dark/)
 })

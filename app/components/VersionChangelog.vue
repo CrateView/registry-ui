@@ -17,7 +17,7 @@ function date(value: string | null) {
   <UModal v-model:open="open" :title="t('changelogTitle')">
     <button
       type="button"
-      class="flex items-center gap-2 text-xs text-muted hover:text-primary"
+      class="flex w-full items-center gap-2 text-xs text-muted hover:text-primary"
       :aria-label="t('openChangelog', { version: current })"
     >
       <span class="font-mono">v{{ current }}</span>
@@ -28,6 +28,10 @@ function date(value: string | null) {
         :title="t('updateAvailable', { version: latest?.version })"
         :aria-label="t('updateAvailable', { version: latest?.version })"
       />
+      <span class="ml-auto flex items-center gap-1">
+        {{ t('changelogTitle') }}
+        <UIcon name="i-lucide-chevron-right" class="size-3" />
+      </span>
     </button>
     <template #body>
       <div class="space-y-4">

@@ -1,4 +1,8 @@
 {
+  "settings": "Einstellungen",
+  "settingsDescription": "Passe Darstellung und Sprache deines Arbeitsbereichs an.",
+  "themeDescription": "Wähle hell, dunkel oder die Darstellung deines Systems.",
+  "languageDescription": "Wähle die Sprache für die gesamte Oberfläche.",
   "overview": "Übersicht",
   "explore": "Entdecken",
   "registry": "Registry",
@@ -122,5 +126,18 @@
   "allReleases": "Alle GitHub-Releases",
   "view": "Ansicht",
   "table": "Tabelle",
-  "grid": "Raster"
+  "grid": "Raster",
+  "about": "Über",
+  "dependencyLicenses": "Dependency-Lizenzen",
+  "dependencyLicensesDescription": "Alle direkten und transitiven Dependencies einschließlich Entwicklungswerkzeugen. Lizenztexte und Hinweise werden angezeigt, soweit vorhanden.",
+  "licensesLoading": "Lizenzen werden geladen…",
+  "licensesLoadError": "Dependency-Lizenzen konnten nicht geladen werden.",
+  "licensesRetry": "Erneut versuchen",
+  "licensesSearch": "Pakete, Versionen oder Lizenzen suchen…",
+  "licensesCount": "{count} von {total} Dependency-Versionen",
+  "licensesEmpty": "Keine Dependencies gefunden.",
+  "licenseUnknown": "Lizenz unbekannt",
+  "licenseProject": "Projektwebsite",
+  "licenseTextMissing": "Lizenztext im installierten Paket nicht verfügbar.",
+  "aboutVersion": "Version"
 }
