@@ -8,7 +8,7 @@ Crateview is a modern, themeable dashboard for Docker and OCI container registri
 
 ## Local development
 
-Requires Node.js 24 and a running Distribution registry.
+Requires Node.js 24.22.2 or newer within v24 and a running Distribution registry.
 
 ```sh
 npm ci
