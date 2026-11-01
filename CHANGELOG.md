@@ -1,5 +1,12 @@
 # @crateview/registry-ui
 
+## 0.1.2
+
+### Patch Changes
+
+- 5cf6264: Require Node 24.22.2, update vulnerable transitive dependencies and patch deepmerge prototype poisoning pending an upstream fix.
+- 9d90749: Show installed version, update notifications and GitHub release changelog in the sidebar.
+
 ## 0.1.1
 
 ### Patch Changes
