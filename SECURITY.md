@@ -6,7 +6,7 @@ Crateview is currently in pre-release development. Security fixes are applied to
 
 ## Report a vulnerability privately
 
-Use [GitHub private vulnerability reporting](https://github.com/CrateView/registry-ui/security/advisories/new) to report a suspected vulnerability in Crateview. Do not publish sensitive details or proof-of-concept credentials in public issues or pull requests before a fix can be coordinated.
+Use [GitHub private vulnerability reporting](https://github.com/crateview/registry-ui/security/advisories/new) to report a suspected vulnerability in Crateview. Do not publish sensitive details or proof-of-concept credentials in public issues or pull requests before a fix can be coordinated.
 
 Please include:
 

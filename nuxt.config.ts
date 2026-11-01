@@ -41,8 +41,8 @@ export default defineNuxtConfig({
       brandFavicon: '/favicon.ico',
       brandTitleTemplate: '',
       brandProductUrl: 'https://crateview.de',
-      brandDocsUrl: 'https://github.com/CrateView/registry-ui#readme',
-      brandRepositoryUrl: 'https://github.com/CrateView/registry-ui',
+      brandDocsUrl: 'https://github.com/crateview/registry-ui#readme',
+      brandRepositoryUrl: 'https://github.com/crateview/registry-ui',
     },
   },
   app: {
