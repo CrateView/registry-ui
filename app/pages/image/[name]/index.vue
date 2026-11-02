@@ -127,7 +127,7 @@ watch(name, () => {
             :aria-label="t('sort')"
             class="ml-auto"
           />
-          <UInput
+          <ValidatedSearchInput
             v-model="term"
             icon="i-lucide-search"
             :placeholder="t('tags')"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createAccountSchemas } from '../../shared/validation'
 const { t } = useI18n()
 const registry = useRegistry()
 const route = useRoute()
@@ -6,6 +7,9 @@ const open = useState<boolean>('command-palette-open', () => false)
 const term = ref('')
 const suggestions = ref<{ label: string; to: string }[]>([])
 const pending = ref(false)
+const searchValidation = computed(() =>
+  createAccountSchemas(t).search.safeParse({ search: term.value }),
+)
 const failure = ref('')
 let timer: ReturnType<typeof setTimeout> | undefined
 let sequence = 0
@@ -40,18 +44,19 @@ const groups = computed(() => [
   {
     id: 'results',
     ignoreFilter: true,
-    items: term.value.trim()
-      ? [
-          {
-            label: `${t('searchResults')}: ${term.value}`,
-            icon: 'i-lucide-search',
-            onSelect: () => {
-              open.value = false
-              navigateTo({ path: '/explore', query: { search: term.value } })
+    items:
+      searchValidation.value.success && term.value.trim()
+        ? [
+            {
+              label: `${t('searchResults')}: ${term.value}`,
+              icon: 'i-lucide-search',
+              onSelect: () => {
+                open.value = false
+                navigateTo({ path: '/explore', query: { search: term.value } })
+              },
             },
-          },
-        ]
-      : [],
+          ]
+        : [],
   },
   {
     id: 'navigation',
@@ -60,6 +65,7 @@ const groups = computed(() => [
       ...(registry.info.value?.monitoringEnabled ? [{ label: t('overview'), to: '/home' }] : []),
       { label: t('explore'), to: '/explore' },
       { label: t('settings'), to: '/settings' },
+      ...(registry.info.value?.canCreateUsers ? [{ label: t('users'), to: '/users' }] : []),
     ].map((item) => ({
       ...item,
       onSelect: () => {
@@ -75,6 +81,10 @@ watch([term, open], ([value, visible]) => {
   failure.value = ''
   pending.value = false
   if (!visible || !value.trim()) return
+  if (!searchValidation.value.success) {
+    failure.value = searchValidation.value.error.issues[0]?.message || t('searchInvalid')
+    return
+  }
   pending.value = true
   timer = setTimeout(async () => {
     try {

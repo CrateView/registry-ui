@@ -1,3 +1,5 @@
+import { digestQuerySchema } from '../../../shared/validation'
+import { validated } from '../../utils/validation'
 import { registryFetch, repositoryPath, referencePath } from '../../utils/registry'
 interface ReferrerIndex {
   manifests?: {
@@ -9,10 +11,7 @@ interface ReferrerIndex {
   }[]
 }
 export default defineEventHandler(async (event) => {
-  const name = String(getQuery(event).name || '')
-  const digest = String(getQuery(event).digest || '')
-  if (!/^sha256:[a-f0-9]{64}$/.test(digest))
-    throw createError({ statusCode: 400, statusMessage: 'Subject digest required' })
+  const { name, digest } = validated(digestQuerySchema, getQuery(event))
   const repo = repositoryPath(name)
   let index: ReferrerIndex
   let mode = 'api'

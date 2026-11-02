@@ -48,7 +48,7 @@ watch(open, (value) => {
           <UButton @click="load">{{ t('licensesRetry') }}</UButton>
         </div>
         <template v-else-if="packages">
-          <UInput
+          <ValidatedSearchInput
             v-model="search"
             :aria-label="t('licensesSearch')"
             :placeholder="t('licensesSearch')"

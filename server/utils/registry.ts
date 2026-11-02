@@ -1,5 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { createError, getRequestHeader, getRequestURL, useSession, type H3Event } from 'h3'
+import { accountMode, registryAuthorization } from './accounts'
+import { repositorySchema, referenceSchema } from '../../shared/validation'
 
 const ephemeralPassword = randomBytes(32).toString('base64')
 export const manifestAccept =
@@ -30,26 +32,25 @@ export function upstreamOrigin(event: H3Event) {
   return url.origin
 }
 export function repositoryPath(name: unknown) {
-  if (
-    typeof name !== 'string' ||
-    !/^[a-z0-9]+(?:(?:[._]|__|[-]+)[a-z0-9]+)*(?:\/[a-z0-9]+(?:(?:[._]|__|[-]+)[a-z0-9]+)*)*$/.test(
-      name,
-    )
-  )
+  const parsed = repositorySchema.safeParse(name)
+  if (!parsed.success)
     throw createError({ statusCode: 400, statusMessage: 'Invalid repository name' })
-  return name.split('/').map(encodeURIComponent).join('/')
+  return parsed.data.split('/').map(encodeURIComponent).join('/')
 }
 export function referencePath(reference: unknown) {
-  if (
-    typeof reference !== 'string' ||
-    !/^(?:[\w][\w.-]{0,127}|sha256:[a-f0-9]{64})$/.test(reference)
-  )
+  const parsed = referenceSchema.safeParse(reference)
+  if (!parsed.success)
     throw createError({ statusCode: 400, statusMessage: 'Invalid tag or digest' })
-  return encodeURIComponent(reference)
+  return encodeURIComponent(parsed.data)
 }
-export async function registryFetch(event: H3Event, path: string, options: RequestInit = {}) {
+export async function registryFetch(
+  event: H3Event,
+  path: string,
+  options: RequestInit = {},
+  catalog = false,
+) {
   const session = await registrySession(event)
-  const authorization = getRequestHeader(event, 'authorization') || session.data.authorization
+  const authorization = await registryAuthorization(event, path, options.method || 'GET', catalog)
   const headers = new Headers(options.headers)
   headers.set('Accept', manifestAccept)
   if (authorization) headers.set('Authorization', authorization)
@@ -60,16 +61,29 @@ export async function registryFetch(event: H3Event, path: string, options: Reque
     signal: AbortSignal.timeout(30000),
   })
   if (!response.ok) {
-    if (response.status === 401 && session.data.authorization) await session.clear()
+    // Distribution also uses 401 for insufficient scope. A valid local identity stays signed in.
+    const status =
+      response.status === 401 &&
+      accountMode(event) === 'token' &&
+      session.data.authorization &&
+      !getRequestHeader(event, 'authorization')
+        ? 403
+        : response.status
+    if (status === 401 && session.data.authorization) await session.clear()
     throw createError({
-      statusCode: response.status,
-      statusMessage: `Registry request failed (${response.status})`,
-      data: { path, status: response.status },
+      statusCode: status,
+      statusMessage: `Registry request failed (${status})`,
+      data: { path, status },
     })
   }
   return response
 }
-export async function paginatedList(event: H3Event, path: string, key: 'repositories' | 'tags') {
+export async function paginatedList(
+  event: H3Event,
+  path: string,
+  key: 'repositories' | 'tags',
+  catalog = false,
+) {
   const values: string[] = []
   let next = `${path}${path.includes('?') ? '&' : '?'}n=100`
   const visited = new Set<string>()
@@ -77,7 +91,7 @@ export async function paginatedList(event: H3Event, path: string, key: 'reposito
     if (visited.has(next))
       throw createError({ statusCode: 502, statusMessage: 'Registry returned a pagination loop' })
     visited.add(next)
-    const response = await registryFetch(event, next)
+    const response = await registryFetch(event, next, {}, catalog)
     const payload = (await response.json()) as Record<string, string[] | null>
     values.push(...(payload[key] || []))
     const link = response.headers.get('link')?.match(/<([^>]+)>;\s*rel="?next"?/)

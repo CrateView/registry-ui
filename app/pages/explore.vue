@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Repo, Image } from '~/utils/types'
+import { createAccountSchemas } from '../../shared/validation'
 const { t } = useI18n()
 useHead(() => ({ title: t('explore') }))
 const registry = useRegistry()
@@ -7,7 +8,9 @@ const route = useRoute()
 const names = ref<string[]>([])
 const repos = ref<Repo[]>([])
 const images = ref<Image[]>([])
-const term = ref(String(route.query.search || ''))
+const searchState = reactive({ search: String(route.query.search || '') })
+const term = toRef(searchState, 'search')
+const searchSchema = computed(() => createAccountSchemas(t).search)
 const sort = ref('az')
 const page = ref(1)
 const pending = ref(false)
@@ -23,6 +26,8 @@ async function load() {
   pending.value = true
   error.value = ''
   try {
+    const validation = searchSchema.value.safeParse(searchState)
+    if (!validation.success) throw new Error(validation.error.issues[0]?.message)
     if (term.value.includes(':')) {
       const separator = term.value.lastIndexOf(':')
       const result = await registry.repository(term.value.slice(0, separator))
@@ -85,15 +90,21 @@ function search() {
       <h1 class="page-title">{{ t('explore') }}</h1>
       <p class="mt-3 text-sm text-muted">{{ t('exploreHint') }}</p>
     </div>
-    <form class="flex gap-3" @submit.prevent="search">
-      <UInput
-        v-model="term"
-        icon="i-lucide-search"
-        class="flex-1"
-        :placeholder="t('search')"
-        :aria-label="t('search')"
-      /><UButton type="submit" icon="i-lucide-search">{{ t('searchResults') }}</UButton>
-    </form>
+    <UForm
+      :schema="searchSchema"
+      :state="searchState"
+      class="flex items-start gap-3"
+      @submit="search"
+    >
+      <UFormField name="search" class="flex-1">
+        <UInput
+          v-model="term"
+          icon="i-lucide-search"
+          class="flex-1"
+          :placeholder="t('search')"
+          :aria-label="t('search')" /></UFormField
+      ><UButton type="submit" icon="i-lucide-search">{{ t('searchResults') }}</UButton>
+    </UForm>
     <div class="flex items-center justify-between gap-3">
       <p class="text-sm text-muted">
         {{ t('results', { count: term.includes(':') ? images.length : filtered.length }) }}

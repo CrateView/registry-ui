@@ -1,15 +1,30 @@
 <script setup lang="ts">
+import type { DropdownMenuItem } from '@nuxt/ui'
 const { t } = useI18n()
 const route = useRoute()
 const config = useRuntimeConfig().public
 const registry = useRegistry()
 const ready = ref(false)
 const failure = ref('')
+const { themeItems, languageItems } = useInterfacePreferences()
+const accountItems = computed<DropdownMenuItem[]>(() => [
+  { label: t('language'), icon: 'i-lucide-languages', children: languageItems.value },
+  { label: t('theme'), icon: 'i-lucide-palette', children: themeItems.value },
+  ...(registry.info.value?.userManagement
+    ? [{ label: t('account'), icon: 'i-lucide-user-round', to: '/account' }]
+    : []),
+  { type: 'separator' },
+  { label: t('signOut'), icon: 'i-lucide-log-out', color: 'error', onSelect: signOut },
+])
 const links = computed(() => [
   ...(registry.info.value?.monitoringEnabled
     ? [{ label: t('overview'), icon: 'i-lucide-layout-dashboard', to: '/home' }]
     : []),
   { label: t('explore'), icon: 'i-lucide-boxes', to: '/explore' },
+  { type: 'label' as const, label: t('administration') },
+  ...(registry.info.value?.canCreateUsers
+    ? [{ label: t('users'), icon: 'i-lucide-users', to: '/users' }]
+    : []),
   { label: t('settings'), icon: 'i-lucide-settings', to: '/settings' },
 ])
 const title = computed(() => {
@@ -17,6 +32,8 @@ const title = computed(() => {
   if (route.path.startsWith('/image/'))
     return [route.params.name, route.params.tag].filter(Boolean).join(' / ')
   if (route.path === '/settings') return t('settings')
+  if (route.path === '/account') return t('account')
+  if (route.path === '/users') return t('users')
   return route.path === '/explore' ? t('explore') : t('overview')
 })
 const external = computed(() =>
@@ -146,11 +163,8 @@ async function signOut() {
           <template #right>
             <UDropdownMenu
               v-if="registry.authenticated.value"
-              :items="[
-                { label: registry.user.value, type: 'label' },
-                { label: t('signOut'), icon: 'i-lucide-log-out', onSelect: signOut },
-              ]"
-              :ui="{ content: 'max-w-[calc(100vw-2rem)]' }"
+              :items="accountItems"
+              :ui="{ content: 'w-48 max-w-[calc(100vw-2rem)]' }"
             >
               <UButton
                 color="neutral"
@@ -162,6 +176,20 @@ async function signOut() {
                 :ui="{ label: 'max-w-[24vw] truncate sm:max-w-48' }"
                 :aria-label="t('account')"
               />
+              <template #item-leading="{ item }">
+                <span
+                  v-if="item.flag"
+                  aria-hidden="true"
+                  class="inline-flex size-5 items-center justify-center"
+                  >{{ item.flag }}</span
+                >
+                <UIcon
+                  v-else-if="item.icon"
+                  :name="item.icon"
+                  class="size-4 shrink-0"
+                  :class="item.color === 'error' ? 'text-error' : 'text-muted'"
+                />
+              </template>
             </UDropdownMenu>
             <UButton
               v-else-if="registry.info.value?.auth && route.path !== '/login'"
@@ -171,6 +199,9 @@ async function signOut() {
             >
           </template>
         </UDashboardNavbar>
+        <UDashboardToolbar class="bg-default">
+          <template #left><PageBreadcrumbs /></template>
+        </UDashboardToolbar>
       </template>
       <template #body>
         <main class="flex-1 min-w-0">

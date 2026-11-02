@@ -78,7 +78,12 @@ const rows = computed(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in rows" :key="row.path">
+          <tr
+            v-for="row in rows"
+            :key="row.path"
+            :class="{ 'cursor-pointer': row.hasChildren && !row.repo }"
+            @click="row.hasChildren && !row.repo && toggle(row.path)"
+          >
             <td>
               <div
                 class="flex items-center gap-2"
@@ -94,7 +99,7 @@ const rows = computed(() => {
                       name: row.path,
                     })
                   "
-                  @click="toggle(row.path)"
+                  @click.stop="toggle(row.path)"
                 >
                   <UIcon
                     :name="
