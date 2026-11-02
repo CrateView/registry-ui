@@ -5,7 +5,7 @@ let highlighter: ReturnType<typeof createHighlighterCore> | undefined
 
 export function getCodeHighlighter() {
   return (highlighter ??= createHighlighterCore({
-    themes: [import('shiki/themes/github-light.mjs'), import('shiki/themes/github-dark.mjs')],
+    themes: [import('shiki/themes/github-light.mjs'), import('shiki/themes/one-dark-pro.mjs')],
     langs: [
       import('shiki/langs/bash.mjs'),
       import('shiki/langs/json.mjs'),
@@ -42,7 +42,7 @@ export function highlightCode(
   if (!lang || !highlighter.getLoadedLanguages().includes(lang)) return plainCode(code)
   return highlighter.codeToHtml(code, {
     lang,
-    themes: { light: 'github-light', dark: 'github-dark' },
+    themes: { light: 'github-light', dark: 'one-dark-pro' },
     defaultColor: false,
   })
 }

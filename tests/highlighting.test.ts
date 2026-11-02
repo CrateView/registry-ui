@@ -8,6 +8,20 @@ describe('syntax highlighting', () => {
   it('reuses the highlighter', () => {
     expect(getCodeHighlighter()).toBe(getCodeHighlighter())
   })
+  it('distinguishes JSON keys, strings and literals in dark mode', () => {
+    const { tokens } = highlighter.codeToTokens('{"name":"crateview","size":2,"enabled":true}', {
+      lang: 'json',
+      theme: 'one-dark-pro',
+    })
+    const color = (content: string) =>
+      tokens.flat().find((token) => token.content === content)?.color
+
+    expect(color('"name"')).toBe('#E06C75')
+    expect(color('"crateview"')).toBe('#98C379')
+    expect(color('2')).toBe('#D19A66')
+    expect(color('true')).toBe('#D19A66')
+    expect(highlightCode(highlighter, '{}', 'json')).toContain('github-light one-dark-pro')
+  })
   for (const [language, code] of [
     ['json', '{"name": "crateview", "enabled": true}'],
     ['sh', 'docker pull example.com/team/image:latest'],

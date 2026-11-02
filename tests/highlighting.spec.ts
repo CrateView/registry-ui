@@ -29,7 +29,12 @@ test('registry highlights commands, Markdown and JSON safely', async ({ page, co
   )
   await page.route('**/api/registry/document?*', (route) =>
     route.fulfill({
-      json: { schemaVersion: 2, value: '<script>alert(1)</script>', long: 'x'.repeat(2000) },
+      json: {
+        schemaVersion: 2,
+        value: '<script>alert(1)</script>',
+        enabled: true,
+        long: 'x'.repeat(2000),
+      },
     }),
   )
   await page.emulateMedia({ colorScheme: 'light' })
@@ -59,6 +64,27 @@ test('registry highlights commands, Markdown and JSON safely', async ({ page, co
   await expect(
     page.locator('.code-block').filter({ hasText: 'schemaVersion' }).locator('span').first(),
   ).toBeVisible()
+  for (const tab of ['Manifest', 'Configuration']) {
+    await page.getByRole('button', { name: tab, exact: true }).click()
+    const document = page.locator('.code-block').filter({ hasText: 'schemaVersion' })
+    const key = document.locator('span').filter({ hasText: /^\s*"schemaVersion"$/ })
+    await expect(key).toHaveCSS('color', 'rgb(224, 108, 117)')
+    await expect(
+      document.locator('span').filter({ hasText: /^"<script>alert\(1\)<\/script>"$/ }),
+    ).toHaveCSS('color', 'rgb(152, 195, 121)')
+    await expect(document.locator('span').filter({ hasText: /^2$/ })).toHaveCSS(
+      'color',
+      'rgb(209, 154, 102)',
+    )
+    await expect(document.locator('span').filter({ hasText: /^true$/ })).toHaveCSS(
+      'color',
+      'rgb(209, 154, 102)',
+    )
+    await page.emulateMedia({ colorScheme: 'light' })
+    await expect(key).toHaveCSS('color', 'rgb(0, 92, 197)')
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await expect(key).toHaveCSS('color', 'rgb(224, 108, 117)')
+  }
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
