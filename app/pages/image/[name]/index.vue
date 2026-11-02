@@ -64,9 +64,14 @@ watch(name, () => {
 </script>
 <template>
   <div class="page space-y-6">
-    <UButton to="/explore" variant="link" color="neutral" icon="i-lucide-arrow-left" class="p-0">{{
-      t('repositories')
-    }}</UButton
+    <UButton
+      to="/explore"
+      variant="link"
+      color="neutral"
+      icon="i-lucide-arrow-left"
+      :ui="{ leadingIcon: 'rtl:rotate-180' }"
+      class="p-0"
+      >{{ t('repositories') }}</UButton
     ><RequestState :pending="pending" :error="error" @retry="load"
       ><template v-if="summary"
         ><div class="flex flex-wrap items-start justify-between gap-4">
@@ -125,7 +130,7 @@ watch(name, () => {
             v-model="tagSort"
             :items="tagSortItems"
             :aria-label="t('sort')"
-            class="ml-auto"
+            class="ms-auto"
           />
           <ValidatedSearchInput
             v-model="term"

@@ -15,6 +15,7 @@ type Credentials = z.output<typeof schema.value>
 const fields = computed<AuthFormField[]>(() => [
   {
     name: 'username',
+    dir: 'ltr',
     type: 'text',
     label: t('username'),
     autocomplete: 'username',
@@ -26,6 +27,7 @@ const fields = computed<AuthFormField[]>(() => [
   },
   {
     name: 'password',
+    dir: 'ltr',
     type: 'password',
     label: t('password'),
     autocomplete: 'current-password',

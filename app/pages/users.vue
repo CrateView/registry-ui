@@ -145,6 +145,7 @@ async function create(event: FormSubmitEvent<NewUser>) {
           >
             <UInput
               v-model="state.username"
+              dir="ltr"
               autocomplete="off"
               autocapitalize="none"
               :spellcheck="false"
@@ -160,6 +161,7 @@ async function create(event: FormSubmitEvent<NewUser>) {
           >
             <UInput
               v-model="state.password"
+              dir="ltr"
               type="password"
               autocomplete="new-password"
               :aria-label="t('password')"
@@ -169,6 +171,7 @@ async function create(event: FormSubmitEvent<NewUser>) {
           <UFormField name="confirmation" :label="t('confirmPassword')" required>
             <UInput
               v-model="state.confirmation"
+              dir="ltr"
               type="password"
               autocomplete="new-password"
               :aria-label="t('confirmPassword')"

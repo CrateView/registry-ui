@@ -216,5 +216,15 @@
   "passwordInvalid": "Password must contain no NUL characters and at most 72 UTF-8 bytes.",
   "searchInvalid": "Enter at most 512 characters without control characters.",
   "destinationInvalid": "Use 1–1024 letters, digits, dots, slashes, underscores or hyphens for the destination path.",
-  "home": "Home"
+  "home": "Home",
+  "invalidCredentials": "Invalid credentials",
+  "signInRequired": "Sign-in required",
+  "requestInvalid": "Invalid request",
+  "accessDenied": "Access denied",
+  "requestTooLarge": "Request too large",
+  "tooManyRequests": "Too many requests; retry later",
+  "usernameExists": "Username already exists",
+  "userNotFound": "User not found",
+  "accountServiceUnavailable": "Account service unavailable",
+  "registryRequestFailed": "Registry request failed ({status})"
 }

@@ -36,7 +36,7 @@ const command = computed(() => {
       :aria-label="t('pull')"
       class="w-full"
     /><UFormField v-if="tool === 'skopeo'" :label="t('path')" :error="destinationError"
-      ><UInput v-model="destination" :aria-label="t('path')" class="w-full"
+      ><UInput v-model="destination" dir="ltr" :aria-label="t('path')" class="w-full"
     /></UFormField>
     <div v-if="command" class="rounded-lg bg-muted p-3">
       <CodeBlock :code="command" language="bash" class="text-xs leading-relaxed" />

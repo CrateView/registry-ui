@@ -52,7 +52,7 @@ test('German, language persistence and mobile navigation', async ({ browser }) =
   await expect(page.getByRole('heading', { name: 'Entdecken', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Navigation', exact: true }).click()
   await page.getByRole('combobox', { name: 'Sprache' }).click()
-  await page.getByRole('option', { name: 'EN', exact: true }).click()
+  await page.getByRole('option', { name: 'English', exact: true }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Explore', exact: true })).toBeVisible()
   await page.reload()

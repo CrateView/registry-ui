@@ -15,13 +15,13 @@ const { t } = useI18n()
         ><UIcon name="i-lucide-container" class="size-6"
       /></span>
       <h3 class="truncate text-base font-semibold text-highlighted group-hover:text-primary">
-        {{ repo.Name }}
+        <bdi>{{ repo.Name }}</bdi>
       </h3>
       <p
         class="mt-2 line-clamp-2 min-h-10 text-sm"
         :class="repo.Error ? 'text-error' : 'text-muted'"
       >
-        {{ repo.Error || repo.RepresentativeImage?.Description || t('noDescription') }}
+        {{ repo.Error ? t('error') : repo.RepresentativeImage?.Description || t('noDescription') }}
       </p>
       <div class="my-4 flex flex-wrap gap-1.5">
         <UBadge

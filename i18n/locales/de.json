@@ -216,5 +216,15 @@
   "passwordInvalid": "Passwörter dürfen keine NUL-Zeichen enthalten und höchstens 72 UTF-8-Bytes lang sein.",
   "searchInvalid": "Höchstens 512 Zeichen ohne Steuerzeichen eingeben.",
   "destinationInvalid": "Für den Zielpfad 1–1024 Buchstaben, Ziffern, Punkte, Schrägstriche, Unterstriche oder Bindestriche verwenden.",
-  "home": "Startseite"
+  "home": "Startseite",
+  "invalidCredentials": "Ungültige Zugangsdaten",
+  "signInRequired": "Anmeldung erforderlich",
+  "requestInvalid": "Ungültige Anfrage",
+  "accessDenied": "Zugriff verweigert",
+  "requestTooLarge": "Anfrage zu groß",
+  "tooManyRequests": "Zu viele Anfragen; später erneut versuchen",
+  "usernameExists": "Benutzername bereits vorhanden",
+  "userNotFound": "Benutzer nicht gefunden",
+  "accountServiceUnavailable": "Kontodienst nicht verfügbar",
+  "registryRequestFailed": "Registry-Anfrage fehlgeschlagen ({status})"
 }

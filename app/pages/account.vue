@@ -47,6 +47,7 @@ async function changePassword(event: FormSubmitEvent<PasswordChange>) {
         <UFormField name="currentPassword" :label="t('currentPassword')" required>
           <UInput
             v-model="state.currentPassword"
+            dir="ltr"
             type="password"
             autocomplete="current-password"
             :aria-label="t('currentPassword')"
@@ -61,6 +62,7 @@ async function changePassword(event: FormSubmitEvent<PasswordChange>) {
         >
           <UInput
             v-model="state.password"
+            dir="ltr"
             type="password"
             autocomplete="new-password"
             :aria-label="t('newPassword')"
@@ -70,6 +72,7 @@ async function changePassword(event: FormSubmitEvent<PasswordChange>) {
         <UFormField name="confirmation" :label="t('confirmPassword')" required>
           <UInput
             v-model="state.confirmation"
+            dir="ltr"
             type="password"
             autocomplete="new-password"
             :aria-label="t('confirmPassword')"

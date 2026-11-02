@@ -19,7 +19,7 @@ onMounted(() => {
     @click="open = true"
   >
     <template v-if="!props.collapsed" #default
-      ><span class="min-w-0 flex-1 truncate text-left">{{ t('search') }}</span></template
+      ><span class="min-w-0 flex-1 truncate text-start">{{ t('search') }}</span></template
     >
     <template v-if="!props.collapsed" #trailing
       ><span class="flex shrink-0 gap-1"

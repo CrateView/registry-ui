@@ -1,3 +1,4 @@
+import { requestErrorKey } from '~/utils/request-errors'
 import type { Image, Repo } from '~/utils/types'
 interface RegistryStatus {
   monitoringEnabled?: boolean
@@ -11,6 +12,7 @@ interface RegistryStatus {
 }
 export function useRegistry() {
   const route = useRoute()
+  const { t } = useI18n()
   const info = useState<RegistryStatus | null>('registry-info', () => null)
   const user = computed(() => info.value?.user || '')
   const authenticated = computed(() => Boolean(user.value))
@@ -31,7 +33,8 @@ export function useRegistry() {
         }
         if (route.path !== '/login') await navigateTo('/login')
       }
-      throw new Error(failure.data?.statusMessage || failure.message || 'Registry request failed', {
+      const status = failure.statusCode || failure.status || 0
+      throw new Error(t(requestErrorKey(status, failure.data?.statusMessage || ''), { status }), {
         cause: error,
       })
     }
