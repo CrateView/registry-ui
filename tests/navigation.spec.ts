@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 const digest = 'sha256:' + 'a'.repeat(64)
 test.use({ locale: 'en-US' })
-async function setup(page: Page, allowed = true) {
+async function setup(page: Page, allowed = true, monitoringEnabled = true) {
   let signedIn = true
   await page.route('**/api/registry/status', (route) =>
     route.fulfill({
@@ -11,7 +11,7 @@ async function setup(page: Page, allowed = true) {
         authType: 'basic',
         userManagement: signedIn,
         canCreateUsers: signedIn && allowed,
-        monitoringEnabled: true,
+        monitoringEnabled,
         deleteEnabled: false,
       },
     }),
@@ -63,12 +63,14 @@ test('one compact navigation menu, settings last, with collapsed links preserved
     'Users',
     'Settings',
   ])
+  await expect(navigation.getByText('Workspace', { exact: true })).toBeVisible()
   await expect(navigation.getByText('Administration', { exact: true })).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Administration', exact: true })).toHaveCount(0)
   const explore = await navigation.getByRole('link', { name: 'Explore', exact: true }).boundingBox()
   const users = await navigation.getByRole('link', { name: 'Users', exact: true }).boundingBox()
   expect(users!.y - (explore!.y + explore!.height)).toBeLessThan(60)
   await page.getByRole('button', { name: 'Collapse sidebar', exact: true }).click()
+  await expect(navigation.getByText('Workspace', { exact: true })).toBeHidden()
   await expect(navigation.getByText('Administration', { exact: true })).toBeHidden()
   await expect(navigation.locator('a[href="/users"]')).toBeVisible()
   await expect(navigation.locator('a[href="/settings"]')).toBeVisible()
@@ -131,3 +133,25 @@ test('sign out is red, separated, and clears the signed-in state', async ({ page
   await expect(page).toHaveURL(/\/login$/)
   await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible()
 })
+
+for (const monitoringEnabled of [true, false]) {
+  test(`workspace group with monitoring ${monitoringEnabled ? 'enabled' : 'disabled'}`, async ({
+    page,
+  }) => {
+    await setup(page, true, monitoringEnabled)
+    await page.goto('/explore')
+    const navigation = page.getByRole('navigation', { name: 'Navigation', exact: true })
+    const workspace = navigation.getByText('Workspace', { exact: true })
+    await expect(workspace).toBeVisible()
+    await expect(navigation.getByRole('link', { name: 'Overview', exact: true })).toHaveCount(
+      monitoringEnabled ? 1 : 0,
+    )
+    const explore = navigation.getByRole('link', { name: 'Explore', exact: true })
+    await expect(explore).toBeVisible()
+    expect((await workspace.boundingBox())!.y).toBeLessThan((await explore.boundingBox())!.y)
+    await expect(page.getByRole('heading', { name: 'Explore', exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Collapse sidebar', exact: true }).click()
+    await expect(workspace).toBeHidden()
+    await expect(navigation.locator('a[href="/explore"]')).toBeVisible()
+  })
+}

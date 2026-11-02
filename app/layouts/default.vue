@@ -21,6 +21,7 @@ const accountItems = computed<DropdownMenuItem[]>(() => [
   { label: t('signOut'), icon: 'i-lucide-log-out', color: 'error', onSelect: signOut },
 ])
 const links = computed(() => [
+  { type: 'label' as const, label: t('workspace') },
   ...(registry.info.value?.monitoringEnabled
     ? [{ label: t('overview'), icon: 'i-lucide-layout-dashboard', to: '/home' }]
     : []),
