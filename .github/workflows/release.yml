@@ -141,3 +141,20 @@ jobs:
           if [ "$NEEDS_RELEASE" = 'true' ]; then
             gh release create "v$VERSION" --generate-notes --verify-tag
           fi
+      - name: Create documentation dispatch token
+        if: steps.changesets.outputs.has-changesets == 'false'
+        id: docs-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ vars.DOCS_APP_ID }}
+          private-key: ${{ secrets.DOCS_APP_PRIVATE_KEY }}
+          owner: crateview
+          repositories: website
+          permission-actions: write
+      - name: Persist and dispatch documentation promotion
+        if: steps.changesets.outputs.has-changesets == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DOCS_PROMOTION_TOKEN: ${{ steps.docs-token.outputs.token }}
+          RELEASE_VERSION: ${{ steps.state.outputs.version }}
+        run: node scripts/request-docs-promotion.mjs "v$RELEASE_VERSION"
