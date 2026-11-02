@@ -43,6 +43,8 @@ jobs:
         run: npm run build
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Test PWA production behavior
+        run: npm run test:pwa:integration
       - name: Test filesystem branding
         run: npm run test:branding:integration
       - name: Test both account modes against Distribution

@@ -9,10 +9,14 @@ const config = () => ({
   brandLogoLightFile: '',
   brandLogoDarkFile: '',
   brandFaviconFile: '',
+  brandPwaIcon_192File: '',
+  brandPwaIcon_512File: '',
   public: {
     brandLogoLight: 'https://example.test/light.svg',
     brandLogoDark: '/dark.png',
     brandFavicon: '/favicon.ico',
+    brandPwaIcon_192: '/branding/pwa-192.png',
+    brandPwaIcon_512: '/branding/pwa-512.png',
   },
   app: { baseURL: '/' },
 });
@@ -32,6 +36,8 @@ describe('filesystem branding', () => {
       logoLight: 'https://example.test/light.svg',
       logoDark: '/dark.png',
       favicon: '/favicon.ico',
+      pwaIcon192: '/branding/pwa-192.png',
+      pwaIcon512: '/branding/pwa-512.png',
     });
     expect(result.assets.size).toBe(0);
   });
@@ -47,6 +53,8 @@ describe('filesystem branding', () => {
       logoLight: '/api/branding/logo-light',
       logoDark: '/dark.png',
       favicon: '/api/branding/favicon',
+      pwaIcon192: '/branding/pwa-192.png',
+      pwaIcon512: '/branding/pwa-512.png',
     });
     expect(result.assets.get('logo-light')?.body.toString()).toBe(body);
     expect(result.assets.get('favicon')?.body.toString()).toBe(body);
@@ -98,5 +106,25 @@ describe('filesystem branding', () => {
     writeFileSync(file, '<svg/>');
     chmodSync(file, 0);
     expect(() => loadBranding({ ...config(), brandLogoLightFile: file })).toThrow('Invalid NUXT_BRAND_LOGO_LIGHT_FILE');
+  });
+});
+
+describe('PWA file overrides', () => {
+  it('serves validated PNG bytes beneath the deployment base without exposing file paths', async () => {
+    const { readFileSync } = await import('node:fs');
+    const root = fixture();
+    const body = readFileSync('public/branding/pwa-192.png');
+    writeFileSync(join(root, 'private.png'), body);
+    const result = loadBranding(
+      { ...config(), brandPwaIcon_192File: 'private.png', app: { baseURL: '/registry/' } },
+      root,
+    );
+    expect(result.links.pwaIcon192).toBe('/registry/api/branding/pwa-icon-192');
+    expect(result.assets.get('pwa-icon-192')).toEqual({ body, contentType: 'image/png' });
+    expect(JSON.stringify(result.links)).not.toContain(root);
+    expect(JSON.stringify(result.links)).not.toContain('private.png');
+    expect(() => loadBranding({ ...config(), brandPwaIcon_512File: 'private.png' }, root)).toThrow(
+      'Invalid NUXT_BRAND_PWA_ICON_512_FILE',
+    );
   });
 });

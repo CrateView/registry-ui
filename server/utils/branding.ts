@@ -1,15 +1,20 @@
 import { readFileSync, statSync } from 'node:fs';
 import { extname, resolve } from 'node:path';
 import type { Branding } from '../../shared/branding';
+import { validatePwaPng } from './pwa';
 
 interface BrandingConfig {
   brandLogoLightFile: string;
   brandLogoDarkFile: string;
   brandFaviconFile: string;
+  brandPwaIcon_192File: string;
+  brandPwaIcon_512File: string;
   public: {
     brandLogoLight: string;
     brandLogoDark: string;
     brandFavicon: string;
+    brandPwaIcon_192: string;
+    brandPwaIcon_512: string;
   };
   app: { baseURL: string };
 }
@@ -27,6 +32,8 @@ const settings = [
   ['logo-light', 'logoLight', 'brandLogoLightFile', 'brandLogoLight', 'NUXT_BRAND_LOGO_LIGHT_FILE'],
   ['logo-dark', 'logoDark', 'brandLogoDarkFile', 'brandLogoDark', 'NUXT_BRAND_LOGO_DARK_FILE'],
   ['favicon', 'favicon', 'brandFaviconFile', 'brandFavicon', 'NUXT_BRAND_FAVICON_FILE'],
+  ['pwa-icon-192', 'pwaIcon192', 'brandPwaIcon_192File', 'brandPwaIcon_192', 'NUXT_BRAND_PWA_ICON_192_FILE'],
+  ['pwa-icon-512', 'pwaIcon512', 'brandPwaIcon_512File', 'brandPwaIcon_512', 'NUXT_BRAND_PWA_ICON_512_FILE'],
 ] as const;
 
 export function loadBranding(config: BrandingConfig, cwd = process.cwd()) {
@@ -43,11 +50,19 @@ export function loadBranding(config: BrandingConfig, cwd = process.cwd()) {
       if (!contentType) throw new Error('Unsupported image extension');
       if (!statSync(path).isFile()) throw new Error('Expected a regular file');
       const body = readFileSync(path);
+      if (key === 'pwaIcon192' || key === 'pwaIcon512') {
+        validatePwaPng(body, key === 'pwaIcon192' ? 192 : 512);
+        if (contentType !== 'image/png') throw new Error('Expected PNG extension');
+      }
       if (!body.length) throw new Error('Empty image file');
       assets.set(asset, { body, contentType });
       links[key] = `${baseURL}/api/branding/${asset}`;
     } catch (error) {
-      throw new Error(`Invalid ${variable}: expected a readable, nonempty SVG, PNG, JPEG, WebP, GIF or ICO file`, {
+      const expected =
+        key === 'pwaIcon192' || key === 'pwaIcon512'
+          ? `a readable ${key === 'pwaIcon192' ? 192 : 512}x${key === 'pwaIcon192' ? 192 : 512} PNG file`
+          : 'a readable, nonempty SVG, PNG, JPEG, WebP, GIF or ICO file';
+      throw new Error(`Invalid ${variable}: expected ${expected}`, {
         cause: error,
       });
     }

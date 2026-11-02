@@ -78,6 +78,8 @@ try {
     logoLight: 'https://example.test/light.svg',
     logoDark: '/url-dark.svg',
     favicon: '/url-icon.ico',
+    pwaIcon192: '/branding/pwa-192.png',
+    pwaIcon512: '/branding/pwa-512.png',
   });
   assert.equal((await fetch(`${defaults.url}/api/branding/logo-light`)).status, 404);
   defaults.child.kill();
@@ -95,6 +97,8 @@ try {
       logoLight: `${baseURL}api/branding/logo-light`,
       logoDark: `${baseURL}api/branding/logo-dark`,
       favicon: `${baseURL}api/branding/favicon`,
+      pwaIcon192: '/branding/pwa-192.png',
+      pwaIcon512: '/branding/pwa-512.png',
     });
     assert.ok(!JSON.stringify(links).includes(root));
     for (const [key, body, type] of [
