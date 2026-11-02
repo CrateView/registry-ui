@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { de, en } from '@nuxt/ui/locale'
 const config = useRuntimeConfig().public
 const { locale } = useI18n()
+const uiLocale = computed(() => (locale.value === 'de' ? de : en))
 useHead(() => ({
   htmlAttrs: { lang: locale.value },
   titleTemplate: (title) =>
@@ -16,7 +18,7 @@ useHead(() => ({
 }))
 </script>
 <template>
-  <UApp
+  <UApp :locale="uiLocale"
     ><NuxtLayout><NuxtPage /></NuxtLayout
   ></UApp>
 </template>

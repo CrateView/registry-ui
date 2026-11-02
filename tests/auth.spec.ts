@@ -7,7 +7,7 @@ async function login(page: import('@playwright/test').Page) {
   await page.getByRole('textbox', { name: 'Username', exact: true }).fill('developer')
   await page.getByRole('textbox', { name: 'Password', exact: true }).fill('test-password')
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-  await expect(page).toHaveURL(/\/home$/)
+  await expect(page).toHaveURL(/\/explore$/)
 }
 test('native Basic Auth, encrypted HttpOnly session, namespaces, alias-safe deletion and logout', async ({
   page,

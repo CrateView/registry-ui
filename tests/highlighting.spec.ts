@@ -43,7 +43,7 @@ test('registry highlights commands, Markdown and JSON safely', async ({ page, co
   const token = commands.locator('span[style*="--shiki-light"]').first()
   await expect(token).toBeVisible()
   const light = await token.evaluate((element) => getComputedStyle(element).color)
-  await page.getByRole('button', { name: 'Dark', exact: true }).first().click()
+  await page.emulateMedia({ colorScheme: 'dark' })
   await expect
     .poll(() => token.evaluate((element) => getComputedStyle(element).color))
     .not.toBe(light)

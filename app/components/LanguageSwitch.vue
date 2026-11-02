@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { de, en } from '@nuxt/ui/locale'
 const { locale, setLocale, setLocaleCookie, t } = useI18n()
 async function changeLocale(value: 'en' | 'de') {
   setLocaleCookie(value)
@@ -6,15 +7,11 @@ async function changeLocale(value: 'en' | 'de') {
 }
 </script>
 <template>
-  <USelect
+  <ULocaleSelect
     :model-value="locale"
-    :items="[
-      { label: 'EN', value: 'en' },
-      { label: 'DE', value: 'de' },
-    ]"
+    :locales="[en, de]"
     :aria-label="t('language')"
-    size="sm"
-    class="w-20"
+    class="w-48"
     @update:model-value="changeLocale($event as 'en' | 'de')"
   />
 </template>

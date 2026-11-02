@@ -18,6 +18,58 @@ npm run dev
 
 UI: http://localhost:3000. Default registry: http://127.0.0.1:5000. Hot module replacement is enabled.
 
+### Dependency licenses
+
+Settings includes an About section with the application version and searchable dependency
+licenses, including development tools and transitive packages. Expand a package to read
+its original license texts and notices. Missing metadata or texts are explicitly labeled.
+
+`npm run dev` and `npm run build` automatically generate
+`public/dependency-licenses.json` from `package-lock.json` and locally installed packages.
+The generated file is ignored by Git and included in the production output, including
+Docker builds. To refresh it manually after changing dependencies:
+
+```sh
+npm run licenses:generate
+```
+
+Packages that are not installed on the build platform remain in the list using their
+lockfile metadata; their license texts are unavailable. No external license service is
+queried.
+
+### Local Docker registry with demo images
+
+Run these commands from `registry-ui`. This development stack exposes an anonymous
+registry only on `127.0.0.1:5050`, avoiding the macOS service on port 5000. Images
+persist in the `dev-registry-data` Docker volume.
+
+```sh
+docker compose -p crateview-dev -f compose.dev.yaml up -d
+curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:5050/v2/
+
+# Pull only if alpine:latest is not already available locally.
+docker image inspect alpine:latest >/dev/null 2>&1 || docker pull alpine:latest
+for repository in alpine demo/backend demo/frontend; do
+  for tag in latest v1; do
+    docker tag alpine:latest "localhost:5050/$repository:$tag"
+    docker push "localhost:5050/$repository:$tag" || exit 1
+  done
+done
+
+# Override the upstream without changing an existing .env file.
+NUXT_REGISTRY_UPSTREAM=http://127.0.0.1:5050 npm run dev
+```
+
+Open http://localhost:3000. The catalog contains `alpine`, `demo/backend` and
+`demo/frontend`, each with `latest` and `v1` tags sharing the same Alpine image.
+The separate E2E fixture and seed script continue to use port 5001.
+
+Stop the dev server with Ctrl+C. Stop the registry while preserving its data:
+
+```sh
+docker compose -p crateview-dev -f compose.dev.yaml down
+```
+
 The frontend is a SPA. Nitro reads runtime ENV and talks to the registry server-side, avoiding browser CORS requirements. `/v2/**` is a streaming proxy for Docker/Podman/ORAS clients; `/api/registry/**` derives UI metadata from catalog, tags, manifests and config blobs. Raw manifest and config JSON can be inspected and copied from image details.
 
 ## Run the complete stack
@@ -126,3 +178,103 @@ Release PRs use the repository-scoped, short-lived `GITHUB_TOKEN`. No personal t
 After creating or updating a version PR, the release workflow waits for its native `ci.yml` pull-request run and approves that workflow run when GitHub requires approval for a bot-created PR. This is restricted to the existing CI workflow and the exact version PR head commit; it does not approve a code review or merge the PR. The native CI run reports the required PR checks. After review and successful CI, merge the PR to publish its Docker release. See [GitHub's workflow-triggering rules](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow#triggering-a-workflow-from-a-workflow).
 
 The `registry-ui` GHCR package is **public** and supports anonymous Docker pulls. The organization allows public packages; new packages still need an explicit visibility choice. Keep the separate website package private.
+
+### Local monitoring dashboard
+
+Create a local `.env` with `NUXT_REGISTRY_UPSTREAM=http://127.0.0.1:5050`,
+`NUXT_MONITORING_ENABLED=true`, `NUXT_MONITORING_METRICS_URL=http://127.0.0.1:5051/metrics`,
+`NUXT_MONITORING_DATABASE_PATH=.dev/monitoring.sqlite`, and a random
+`NUXT_MONITORING_WEBHOOK_SECRET` (generate with `openssl rand -hex 32`).
+Then start the existing development registry with its optional monitoring overlay:
+
+```sh
+docker compose -p crateview-dev -f compose.dev.yaml -f compose.dev.monitoring.yaml up -d
+npm run dev -- --host 0.0.0.0
+```
+
+Open **http://localhost:3000/home**. The host binding lets the registry container
+deliver notifications to the local Nuxt server. Registry data stays in the existing
+`crateview-dev` volume; monitoring history is stored in `.dev/monitoring.sqlite`.
+Debug metrics are available only on loopback port 5051. Initial storage rates need
+two stable samples, potentially two minutes after new storage actions first appear.
+Existing images are preserved; new pulls and pushes populate the activity list.
+
+## Optional Distribution monitoring
+
+Overview is an opt-in operational dashboard; Explore remains the repository catalog.
+With monitoring disabled (the default), `/home` redirects to `/explore` and Overview
+is hidden. Enabling monitoring explicitly grants registry-wide operational data to
+all users who can access the UI, including anonymous users of public registries.
+There is no separate administrator role.
+
+For the bundled Distribution deployment, generate a secret with `openssl rand -hex 32`,
+set `NUXT_MONITORING_WEBHOOK_SECRET` in `.env`, and run:
+
+```sh
+docker compose -f compose.yaml -f compose.monitoring.yaml up -d
+```
+
+Requires Docker Compose 2.23 or later. The optional overlay configures an internal
+Distribution debug endpoint and notifications, plus a persistent SQLite volume.
+The debug port is never published. Do not expose it publicly: Distribution debug
+endpoints can contain sensitive data. The overlay supplies a Distribution config
+for the bundled filesystem registry; merge it into your own config when using
+authentication, another storage driver, or other registry customizations.
+
+For an existing Distribution instance, configure these **server-only** variables:
+
+| Variable                         | Default                  | Purpose                                                                                  |
+| -------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------- |
+| `NUXT_MONITORING_ENABLED`        | `false`                  | Explicitly enable registry-wide monitoring.                                              |
+| `NUXT_MONITORING_METRICS_URL`    | empty                    | Internal HTTP(S) Distribution Prometheus-format endpoint; no Prometheus server required. |
+| `NUXT_MONITORING_METRICS_TOKEN`  | empty                    | Optional Bearer token for that endpoint; never forwarded to the registry API.            |
+| `NUXT_MONITORING_WEBHOOK_SECRET` | empty                    | Separate Bearer secret for `POST /api/monitoring/events`; empty disables notifications.  |
+| `NUXT_MONITORING_DATABASE_PATH`  | `.dev/monitoring.sqlite` | Writable SQLite path. Mount its parent directory persistently (including WAL files).     |
+
+Set Distribution's `http.debug.addr` and `http.debug.prometheus.enabled`, then
+configure a notification endpoint pointing at `/api/monitoring/events` with
+`Authorization: Bearer <webhook secret>`. Crateview accepts the Distribution event
+envelope; only manifest/index `push` and `pull` events are stored. Duplicate event
+IDs are ignored within retained history. Failed writes return 503 for registry
+retry; success is acknowledged only after commit. Envelopes are limited to 1 MiB
+and 1,000 events. Do not reuse a login password as the webhook secret.
+
+One Node 24 server process and one Distribution instance are supported in V1.
+Sampling runs every 60 seconds without browser activity. SQLite schema versioning
+is automatic; back up the database before upgrades. Data is separated by upstream
+origin, retained for 30 days, and pruned on startup and daily. Use a new database
+when replacing a registry at the same origin. Restarting Crateview preserves history
+but begins a new metric baseline. Missing series, counter resets, collector failures,
+and sampling interruptions create gaps; no rate is interpolated over them.
+
+The dashboard offers 24-hour and 7-day views, observed manifest activity, registry
+probe latency, storage operation rate and weighted mean operation duration. The
+first successful metric sample establishes a baseline; rates need a second sample.
+A 401 probe response means reachable with authentication required. The collector
+never uses users' credentials. API reads check access against the upstream. Previously verified encrypted sessions
+can still read monitoring during network/5xx outages until their existing session
+expires (eight hours); new sessions cannot. Explicit 401/403 responses clear the current session.
+An outage cannot be used to establish a new authorized session.
+No metrics endpoint or notification secret is exposed to the browser.
+
+Manifest access events are **not complete image downloads**. Multi-platform images
+and Crateview's own reads can produce multiple events. Notification delivery is
+best effort, with no historical backfill or guarantee of completeness; zero observed
+events does not prove no traffic occurred. Storage operation metrics are not image
+traffic, disk usage, or the global HTTP error rate. No actual storage utilization,
+full download count, or global HTTP error rate is provided.
+
+Sources: [Distribution configuration](https://distribution.github.io/distribution/about/configuration/),
+[notifications](https://distribution.github.io/distribution/about/notifications/).
+
+Validation (requires Node 24 and Docker):
+
+```sh
+npm test
+npm run build
+npm run test:monitoring:integration
+```
+
+The isolated integration test creates and removes its own registry, checks actual
+manifest notifications and storage deltas, and can take about two minutes while
+waiting for background samples. Browser coverage: `tests/monitoring.spec.ts`.

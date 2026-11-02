@@ -15,7 +15,11 @@
     "format:check": "prettier --check .",
     "changeset": "changeset",
     "version": "changeset version && npm install --package-lock-only --ignore-scripts",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "licenses:generate": "node scripts/generate-licenses.mjs",
+    "predev": "npm run licenses:generate",
+    "prebuild": "npm run licenses:generate",
+    "test:monitoring:integration": "node tests/monitoring-integration.mjs"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.0",

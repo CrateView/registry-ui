@@ -12,7 +12,6 @@ const error = ref('')
 const selected = ref('')
 const tab = ref('layers')
 const confirming = ref(false)
-const deleting = ref(false)
 const manifest = computed(
   () =>
     image.value?.Manifests?.find((m) => m.Digest === selected.value) || image.value?.Manifests?.[0],
@@ -111,22 +110,9 @@ async function load() {
 }
 onMounted(load)
 watch(() => [name.value, tag.value], load)
-async function remove() {
-  deleting.value = true
-  try {
-    await registry.request('/api/registry/manifest', {
-      method: 'DELETE',
-      query: { name: name.value, digest: image.value!.Digest },
-    })
-    confirming.value = false
-    useToast().add({ title: t('deleted'), color: 'success' })
-    await navigateTo(repoPath(name.value))
-  } catch (failure) {
-    error.value = String(failure)
-    confirming.value = false
-  } finally {
-    deleting.value = false
-  }
+async function afterDelete(allDeleted: boolean) {
+  if (allDeleted) await navigateTo(repoPath(name.value))
+  else await load()
 }
 </script>
 <template>
@@ -288,20 +274,11 @@ async function remove() {
           </aside>
         </div></template
       ></RequestState
-    ><UModal
+    ><DeleteManifestsDialog
       v-model:open="confirming"
-      :title="t('delete')"
-      :description="
-        t('deleteConfirm', { image: image?.Digest, tags: image?.AffectedTags?.join(', ') || '—' })
-      "
-      ><template #footer
-        ><UButton color="neutral" variant="outline" @click="confirming = false">{{
-          t('cancel')
-        }}</UButton
-        ><UButton color="error" :loading="deleting" @click="remove">{{
-          t('confirm')
-        }}</UButton></template
-      ></UModal
-    >
+      :repo="name"
+      :images="image ? [image] : []"
+      @completed="afterDelete"
+    />
   </div>
 </template>
