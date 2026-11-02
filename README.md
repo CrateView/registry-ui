@@ -8,7 +8,7 @@ Crateview is a modern, themeable dashboard for Docker and OCI container registri
 
 ## Local development
 
-Requires Node.js 24.22.2 or newer within v24 and a running Distribution registry.
+Requires Node.js 26.13.0 or newer within v26 and a running Distribution registry.
 
 ```sh
 npm ci
@@ -243,7 +243,7 @@ IDs are ignored within retained history. Failed writes return 503 for registry
 retry; success is acknowledged only after commit. Envelopes are limited to 1 MiB
 and 1,000 events. Do not reuse a login password as the webhook secret.
 
-One Node 24 server process and one Distribution instance are supported in V1.
+One Node 26 server process and one Distribution instance are supported in V1.
 Sampling runs every 60 seconds without browser activity. SQLite schema versioning
 is automatic; back up the database before upgrades. Data is separated by upstream
 origin, retained for 30 days, and pruned on startup and daily. Use a new database
@@ -271,7 +271,7 @@ full download count, or global HTTP error rate is provided.
 Sources: [Distribution configuration](https://distribution.github.io/distribution/about/configuration/),
 [notifications](https://distribution.github.io/distribution/about/notifications/).
 
-Validation (requires Node 24 and Docker):
+Validation (requires Node 26 and Docker):
 
 ```sh
 npm test

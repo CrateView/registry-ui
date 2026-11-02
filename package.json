@@ -30,7 +30,7 @@
     "@nuxtjs/i18n": "10.6.0",
     "markdown-it": "^15.0.3",
     "nuxt": "4.6.3",
-    "shiki": "^4.5.0",
+    "shiki": "^4.6.0",
     "tailwindcss": "^4.1.0",
     "zod": "^4.6.7"
   },
@@ -39,12 +39,12 @@
     "@nuxt/eslint": "^1.15.0",
     "@playwright/test": "^1.58.0",
     "@types/markdown-it": "^14.1.0",
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.6",
     "bcryptjs": "^3.0.3",
     "deepmerge": "file:vendor/deepmerge",
     "eslint": "^10.14.0",
     "prettier": "^3.9.10",
-    "typescript": "^5.9.0",
+    "typescript": "^6.0.3",
     "vitest": "^5.0.5",
     "vue-tsc": "^3.1.0"
   },
@@ -63,7 +63,7 @@
   },
   "version": "0.4.0",
   "engines": {
-    "node": ">=24.22.2 <25"
+    "node": ">=26.13.0 <27"
   },
   "overrides": {
     "minimatch": "^11.0.3",
