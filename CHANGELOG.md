@@ -1,5 +1,21 @@
 # @crateview/registry-ui
 
+## 0.5.0
+
+### Minor Changes
+
+- b36e597: Add an independent file-backed account service, native htpasswd account management, Distribution token authorization with repository grants, and ENV-controlled user creation in the UI.
+
+  Group Settings and Users under Administration, add the protected user list and creation page, and share Zod validation between UI forms and account APIs.
+
+  Add a branded full-page sign-in, compact administration navigation, dashboard breadcrumbs, and CRM-style language/theme menus with shared animated theme changes and reduced-motion fallbacks.
+
+- ca5b4e9: Add thirteen interface languages with native language selection and RTL support for Arabic and Urdu. Localize request errors and preserve technical text direction.
+
+### Patch Changes
+
+- bef4409: Require Node.js 26.13.0 LTS for development and production, update Docker images and Node.js types, and align installation documentation. Upgrade TypeScript to 6.0.3 and Shiki to 4.6.0.
+
 ## 0.4.0
 
 ### Minor Changes
