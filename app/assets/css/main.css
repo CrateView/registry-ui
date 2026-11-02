@@ -123,3 +123,21 @@ select {
 .code-block code {
   font-family: var(--font-mono);
 }
+
+/* The same document-level transition is used by every theme control. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 9999;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root) {
+    animation-duration: 0s;
+  }
+}

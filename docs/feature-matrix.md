@@ -8,6 +8,7 @@
 | Multi-platform selection                 | OCI index / Docker manifest list descriptors                 | Real isolated OCI index fixture with amd64 and arm64 configs |
 | Referrers and artifacts                  | OCI referrers endpoint or standard digest-tag index fallback | Real isolated SBOM referrer fixture                          |
 | Basic login and logout                   | Registry Basic Auth, encrypted HttpOnly UI cookie            | Real official-registry htpasswd test                         |
+| Account management and token grants      | Independent htpasswd/JSON service, scoped Distribution JWTs  | Account service tests and real Distribution integration      |
 | Digest deletion and aliases              | Manifest HEAD digests followed by DELETE by digest           | Real isolated manifest deletion with two affected tags       |
 | Theme, language and mobile layout        | Nuxt UI, Nuxt Color Mode, Nuxt i18n                          | Browser reload, system emulation and mobile navigation       |
 | Path validation and concurrency limits   | Server API boundary                                          | Unit tests                                                   |

@@ -127,9 +127,14 @@ test('palette search errors, empty results and slash inside input', async ({ pag
 test('explorer nested folders collapse and retain repository links', async ({ page }) => {
   await setup(page)
   await page.goto('/explore')
-  await page.getByRole('button', { name: 'Collapse demo', exact: true }).click()
+  const namespace = page
+    .getByRole('row')
+    .filter({ has: page.getByRole('button', { name: 'Collapse demo', exact: true }) })
+  await namespace.locator('td').last().click()
   await expect(page.getByRole('link', { name: 'backend', exact: true })).toHaveCount(0)
-  await page.getByRole('button', { name: 'Expand demo', exact: true }).click()
+  const expand = page.getByRole('button', { name: 'Expand demo', exact: true })
+  await expand.focus()
+  await page.keyboard.press('Enter')
   await page.getByRole('button', { name: 'Collapse demo/backend', exact: true }).click()
   await expect(page.getByRole('link', { name: 'nested', exact: true })).toHaveCount(0)
   await expect(page.getByRole('link', { name: 'backend', exact: true })).toBeVisible()

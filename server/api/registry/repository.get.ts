@@ -1,8 +1,10 @@
+import { repositoryQuerySchema } from '../../../shared/validation'
+import { validated } from '../../utils/validation'
 import { paginatedList, repositoryPath, mapLimit, readImage } from '../../utils/registry'
 export default defineEventHandler(async (event) => {
-  const name = String(getQuery(event).name || '')
+  const { name, summary } = validated(repositoryQuerySchema, getQuery(event))
   const tags = await paginatedList(event, `/v2/${repositoryPath(name)}/tags/list`, 'tags')
-  const summaryOnly = getQuery(event).summary === 'true'
+  const summaryOnly = summary === 'true'
   const selected = summaryOnly
     ? [tags.includes('latest') ? 'latest' : tags.toSorted()[0]].filter(
         (tag): tag is string => !!tag,

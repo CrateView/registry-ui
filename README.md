@@ -96,14 +96,14 @@ For a standalone frontend, set `NUXT_REGISTRY_UPSTREAM` to your existing registr
 - OCI annotations/labels for description, vendor, source, docs and license. Registry push time and download counts are not available from this API and are not invented from image creation times.
 - Raw manifest/config documents, OCI referrers and artifact annotations, with the standard digest-tag index fallback for registries without a referrers endpoint. The UI reads fallback indexes maintained by OCI clients; it does not invent an index by scanning all manifests.
 - Docker, Podman, Skopeo and ORAS commands and clipboard support.
-- Anonymous access and native `htpasswd` Basic Auth. External token/Bearer services show an explicit unsupported-auth notice; there is no built-in OIDC server or user/API-key management.
+- Anonymous access, native `htpasswd` Basic Auth, and an optional independent [account service](auth/README.md) with Distribution token authorization. UI users can change passwords; an ENV allowlist controls account creation. External token/Bearer services and OIDC remain unsupported.
 - Favorites, CVE scanning, a dependency index, download statistics and signature trust verification are outside the standard registry API and are not implemented. Referrer artifacts may contain signatures, but listing them does not claim cryptographic validation.
 
 Metadata is loaded on demand, with bounded parallelism per request. Name search loads the full paginated catalog; platform metadata is derived for visible repositories rather than pretending there is a server-side metadata search index. Large tag lists can require many requests to obtain sortable creation dates.
 
 ## Authentication and deletion
 
-Basic credentials are validated against `/v2/`. The server stores them only in an encrypted, HttpOnly, SameSite=Strict session cookie, never localStorage. Session lifetime is eight hours. HTTPS enables the Secure cookie flag. Set a cryptographically random `NUXT_SESSION_PASSWORD` (at least 32 characters) for stable production sessions:
+Basic credentials are validated against `/v2/`; managed token mode validates them through the independent account service. The server stores them only in an encrypted, HttpOnly, SameSite=Strict session cookie, never localStorage. Session lifetime is eight hours. HTTPS enables the Secure cookie flag. Set a cryptographically random `NUXT_SESSION_PASSWORD` (at least 32 characters) for stable production sessions:
 
 ```sh
 openssl rand -base64 32
@@ -112,6 +112,10 @@ openssl rand -base64 32
 Without a configured secret, a random process-local secret is generated; restarting the process invalidates sessions. All instances behind a load balancer must share the same secret. The registry remains responsible for access control. Logout clears the UI session; it does not administer registry users.
 
 Manifest deletion is off by default in the UI. Enable `NUXT_REGISTRY_DELETE_ENABLED=true` and enable `storage.delete.enabled` in Distribution to expose it. Standard deletion uses a **digest**, not a tag: all tags pointing at that manifest are affected. The confirmation lists these tags. A concurrent registry writer can change references after the preview; there is no registry transaction API to lock aliases. Deletion does not run garbage collection or promise immediate disk reclamation.
+
+## Optional account management
+
+See [the account service guide](auth/README.md) for both modes, Compose overlays, bootstrap, CLI and token grants. Account storage uses `htpasswd` and a JSON grants file, with no SQLite. Docker can connect directly to Distribution independently of the UI. Set `NUXT_USER_CREATION_ALLOWED_USERS` to a comma-separated allowlist or `*`; the default allows nobody to create accounts through the UI. The Administration section contains Settings and the Users page. The ENV allowlist controls account listing and creation; token grants are read-only in the UI. Password changes under Account require the current password. Forms and account APIs share Zod validation.
 
 ## Branding and theme
 

@@ -1,8 +1,14 @@
 import { proxyRequest, getRequestHeader, getRequestURL, setResponseHeader, type H3Event } from 'h3'
-import { registrySession, upstreamOrigin } from './registry'
+import { upstreamOrigin, sameOrigin } from './registry'
+import { registryAuthorization, accountMode } from './accounts'
 export async function registryProxy(event: H3Event) {
-  const session = await registrySession(event)
-  const authorization = getRequestHeader(event, 'authorization') || session.data.authorization
+  if (
+    accountMode(event) === 'token' &&
+    !getRequestHeader(event, 'authorization') &&
+    !['GET', 'HEAD', 'OPTIONS'].includes(event.method)
+  )
+    sameOrigin(event)
+  const authorization = await registryAuthorization(event, event.path, event.method)
   const origin = upstreamOrigin(event)
   const publicOrigin = getRequestURL(event).origin
   // Preserve the raw encoded path/query, and pin the upstream origin.

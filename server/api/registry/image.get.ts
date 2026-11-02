@@ -1,3 +1,5 @@
+import { imageQuerySchema } from '../../../shared/validation'
+import { validated } from '../../utils/validation'
 import {
   readImage,
   repositoryPath,
@@ -6,13 +8,20 @@ import {
   registryFetch,
   mapLimit,
 } from '../../utils/registry'
+import { accountMode, accountRequest } from '../../utils/accounts'
 export default defineEventHandler(async (event) => {
-  const name = String(getQuery(event).name || '')
-  const reference = String(getQuery(event).reference || '')
+  const { name, reference } = validated(imageQuerySchema, getQuery(event))
   const image = await readImage(event, name, reference)
   let aliases: string[] = []
   const enabled = useRuntimeConfig(event).registryDeleteEnabled
-  if (enabled === true || String(enabled) === 'true') {
+  let canDelete = enabled === true || String(enabled) === 'true'
+  if (canDelete && accountMode(event) === 'token') {
+    const access = await accountRequest<{ actions: string[] }>(event, 'access', {
+      repository: name,
+    })
+    canDelete = access.actions.includes('delete')
+  }
+  if (canDelete) {
     const tags = await paginatedList(event, `/v2/${repositoryPath(name)}/tags/list`, 'tags')
     const matches = await mapLimit(tags, async (tag) => {
       const response = await registryFetch(
@@ -27,6 +36,6 @@ export default defineEventHandler(async (event) => {
   return {
     ...image,
     AffectedTags: aliases,
-    IsDeletable: enabled === true || String(enabled) === 'true',
+    IsDeletable: canDelete,
   }
 })

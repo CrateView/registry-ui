@@ -27,6 +27,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Install account service dependencies
+        run: npm ci --prefix auth
       - name: Check types
         run: npm run typecheck
       - name: Lint
@@ -35,5 +37,9 @@ jobs:
         run: npm run format:check
       - name: Run unit tests
         run: npm test
+      - name: Run account service tests
+        run: npm run test:auth
       - name: Build production application
         run: npm run build
+      - name: Test both account modes against Distribution
+        run: npm run test:auth:integration -- --docker

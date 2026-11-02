@@ -6,6 +6,8 @@ interface RegistryStatus {
   authType: string
   user: string
   deleteEnabled: boolean
+  userManagement?: boolean
+  canCreateUsers?: boolean
 }
 export function useRegistry() {
   const route = useRoute()

@@ -1,12 +1,15 @@
+import { monitoringQuerySchema } from '../../../shared/validation'
+import { validated } from '../../utils/validation'
 import { monitoringService } from '../../utils/monitoring'
 import { registryFetch, registrySession, upstreamOrigin } from '../../utils/registry'
+import { accountMode, accountIdentity } from '../../utils/accounts'
 export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'Cache-Control', 'no-store')
   const service = monitoringService()
   if (!service.active) throw createError({ statusCode: 404, statusMessage: 'Monitoring disabled' })
-  const range = getQuery(event).range || '24h'
-  if (range !== '24h' && range !== '7d')
-    throw createError({ statusCode: 400, statusMessage: 'Invalid monitoring range' })
+  if (accountMode(event) === 'token' && !(await accountIdentity(event)).globalRead)
+    throw createError({ statusCode: 403, statusMessage: 'Registry-wide read access required' })
+  const { range } = validated(monitoringQuerySchema, getQuery(event))
   // Remember successful access in the encrypted session so an outage can still
   // be inspected. A fresh session must always authenticate against the upstream.
   const session = await registrySession(event)

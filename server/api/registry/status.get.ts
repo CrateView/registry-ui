@@ -1,11 +1,33 @@
 import { enabled } from '../../utils/monitoring-core'
 import { registrySession, upstreamOrigin } from '../../utils/registry'
+import {
+  accountIdentity,
+  accountMode,
+  canCreateUser,
+  requireManagedRegistry,
+} from '../../utils/accounts'
 export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'Cache-Control', 'no-store')
   const session = await registrySession(event)
   const origin = upstreamOrigin(event)
   const monitoringEnabled = enabled(useRuntimeConfig(event).monitoringEnabled)
   const deleteEnabled = enabled(useRuntimeConfig(event).registryDeleteEnabled)
+  if (accountMode(event) === 'token') {
+    await requireManagedRegistry(event)
+    const identity = session.data.authorization ? await accountIdentity(event) : undefined
+    return {
+      monitoringEnabled: monitoringEnabled && Boolean(identity?.globalRead),
+      auth: true,
+      authType: 'token',
+      user: identity?.username || '',
+      deleteEnabled,
+      userManagement: Boolean(identity),
+      canCreateUsers: Boolean(
+        identity &&
+        canCreateUser(useRuntimeConfig(event).userCreationAllowedUsers, identity.username),
+      ),
+    }
+  }
   const headers = session.data.authorization
     ? { Authorization: session.data.authorization }
     : undefined
@@ -49,6 +71,12 @@ export default defineEventHandler(async (event) => {
     await session.clear()
   if (response.ok && monitoringEnabled && session.data.monitoringAccess !== origin)
     await session.update({ monitoringAccess: origin })
+  let userManagement = false
+  if (response.ok && session.data.authorization && accountMode(event) === 'htpasswd') {
+    await requireManagedRegistry(event)
+    await accountIdentity(event)
+    userManagement = true
+  }
   return {
     monitoringEnabled,
     auth: response.status === 401,
@@ -59,5 +87,9 @@ export default defineEventHandler(async (event) => {
         : 'none',
     user: response.ok ? session.data.username || '' : '',
     deleteEnabled,
+    userManagement,
+    canCreateUsers:
+      userManagement &&
+      canCreateUser(useRuntimeConfig(event).userCreationAllowedUsers, session.data.username),
   }
 })
