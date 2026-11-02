@@ -1,0 +1,35 @@
+# Local Nuxt server runs on the host; keep the debug port bound to loopback.
+services:
+  registry:
+    ports:
+      - '127.0.0.1:5051:5001'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    configs:
+      - source: dev-monitoring-registry
+        target: /etc/distribution/config.yml
+configs:
+  dev-monitoring-registry:
+    content: |
+      version: 0.1
+      storage:
+        filesystem:
+          rootdirectory: /var/lib/registry
+        delete:
+          enabled: true
+      http:
+        addr: :5000
+        debug:
+          addr: :5001
+          prometheus:
+            enabled: true
+            path: /metrics
+      notifications:
+        endpoints:
+          - name: crateview-dev
+            url: http://host.docker.internal:3000/api/monitoring/events
+            headers:
+              Authorization: ["Bearer ${NUXT_MONITORING_WEBHOOK_SECRET:?Set a random webhook secret in .env}"]
+            timeout: 5s
+            threshold: 5
+            backoff: 1s

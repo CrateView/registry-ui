@@ -3,7 +3,22 @@ import { test, expect } from '@playwright/test'
 test.use({ locale: 'en-US' })
 test.beforeEach(async ({ page }) => {
   await page.route('**/api/registry/status', (route) =>
-    route.fulfill({ json: { auth: false, user: '', deleteEnabled: false } }),
+    route.fulfill({
+      json: { auth: false, user: '', deleteEnabled: false, monitoringEnabled: true },
+    }),
+  )
+  await page.route('**/api/monitoring/overview?*', (route) =>
+    route.fulfill({
+      json: {
+        startedAt: Date.now(),
+        lastSuccessAt: null,
+        latest: null,
+        sources: { metrics: false, events: false, collectorError: null, lastEventAt: null },
+        totals: null,
+        activity: [],
+        series: [],
+      },
+    }),
   )
   await page.route('**/api/registry/catalog', (route) =>
     route.fulfill({ json: { repositories: [] } }),

@@ -1,5 +1,7 @@
 import type { Image, Repo } from '~/utils/types'
 interface RegistryStatus {
+  monitoringEnabled?: boolean
+  probeFailed?: boolean
   auth: boolean
   authType: string
   user: string

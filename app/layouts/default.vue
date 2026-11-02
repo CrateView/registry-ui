@@ -6,7 +6,9 @@ const registry = useRegistry()
 const ready = ref(false)
 const failure = ref('')
 const links = computed(() => [
-  { label: t('overview'), icon: 'i-lucide-layout-dashboard', to: '/home' },
+  ...(registry.info.value?.monitoringEnabled
+    ? [{ label: t('overview'), icon: 'i-lucide-layout-dashboard', to: '/home' }]
+    : []),
   { label: t('explore'), icon: 'i-lucide-boxes', to: '/explore' },
   { label: t('settings'), icon: 'i-lucide-settings', to: '/settings' },
 ])
@@ -30,7 +32,7 @@ const external = computed(() =>
       trailingIcon: 'i-lucide-arrow-up-right',
     })),
 )
-const connected = computed(() => ready.value && !failure.value)
+const connected = computed(() => ready.value && !failure.value && !registry.info.value?.probeFailed)
 async function initialize() {
   failure.value = ''
   try {

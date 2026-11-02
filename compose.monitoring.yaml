@@ -1,0 +1,42 @@
+# Optional: docker compose -f compose.yaml -f compose.monitoring.yaml up -d
+# Requires Docker Compose >= 2.23. Generate secret: openssl rand -hex 32
+services:
+  registry:
+    configs:
+      - source: monitoring-registry
+        target: /etc/distribution/config.yml
+  frontend:
+    environment:
+      NUXT_MONITORING_ENABLED: 'true'
+      NUXT_MONITORING_METRICS_URL: http://registry:5001/metrics
+      NUXT_MONITORING_WEBHOOK_SECRET: ${NUXT_MONITORING_WEBHOOK_SECRET:?Set a random webhook secret}
+      NUXT_MONITORING_DATABASE_PATH: /app/data/monitoring.sqlite
+    volumes:
+      - monitoring-data:/app/data
+configs:
+  monitoring-registry:
+    content: |
+      version: 0.1
+      storage:
+        filesystem:
+          rootdirectory: /var/lib/registry
+        delete:
+          enabled: true
+      http:
+        addr: :5000
+        debug:
+          addr: :5001
+          prometheus:
+            enabled: true
+            path: /metrics
+      notifications:
+        endpoints:
+          - name: crateview
+            url: http://frontend:3000/api/monitoring/events
+            headers:
+              Authorization: ["Bearer ${NUXT_MONITORING_WEBHOOK_SECRET:?Set a random webhook secret}"]
+            timeout: 5s
+            threshold: 5
+            backoff: 1s
+volumes:
+  monitoring-data:

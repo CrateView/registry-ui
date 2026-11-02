@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   ssr: false,
   devtools: { enabled: false },
+  vite: { server: { allowedHosts: ['host.docker.internal'] } },
   ui: { fonts: false },
   colorMode: {
     preference: 'system',
@@ -31,6 +32,11 @@ export default defineNuxtConfig({
     registryUpstream: 'http://127.0.0.1:5000',
     registryDeleteEnabled: false,
     sessionPassword: '',
+    monitoringEnabled: false,
+    monitoringMetricsUrl: '',
+    monitoringMetricsToken: '',
+    monitoringWebhookSecret: '',
+    monitoringDatabasePath: '.dev/monitoring.sqlite',
     public: {
       appVersion: version,
       themePrimary: '',
