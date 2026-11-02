@@ -173,5 +173,15 @@
   "monitorAction": "Action",
   "monitorGap": "Collection gap / partial coverage",
   "monitorDataTable": "Show data table",
-  "monitorNoData": "No measurements available."
+  "monitorNoData": "No measurements available.",
+  "commandPalette": "Search and navigation",
+  "deleteManifestsWarning": "Deleting manifests removes all associated tags, including tags you did not select. Confirm to continue.",
+  "deleteUnavailable": "Manifest deletion is unavailable.",
+  "affectedTags": "Affected tags",
+  "selectedCount": "{count} selected",
+  "deleteSelected": "Delete selected",
+  "selectAllVisible": "Select all visible tags",
+  "selectTag": "Select {tag}",
+  "collapseFolder": "Collapse {name}",
+  "expandFolder": "Expand {name}"
 }

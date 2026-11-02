@@ -173,5 +173,15 @@
   "monitorAction": "Aktion",
   "monitorGap": "Erfassungslücke / Teilabdeckung",
   "monitorDataTable": "Datentabelle anzeigen",
-  "monitorNoData": "Keine Messwerte verfügbar."
+  "monitorNoData": "Keine Messwerte verfügbar.",
+  "commandPalette": "Suche und Navigation",
+  "deleteManifestsWarning": "Beim Löschen von Manifesten werden alle zugehörigen Tags entfernt, auch nicht ausgewählte Tags. Zum Fortfahren bestätigen.",
+  "deleteUnavailable": "Manifest-Löschung ist nicht verfügbar.",
+  "affectedTags": "Betroffene Tags",
+  "selectedCount": "{count} ausgewählt",
+  "deleteSelected": "Auswahl löschen",
+  "selectAllVisible": "Alle sichtbaren Tags auswählen",
+  "selectTag": "{tag} auswählen",
+  "collapseFolder": "{name} einklappen",
+  "expandFolder": "{name} ausklappen"
 }

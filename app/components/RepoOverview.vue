@@ -4,6 +4,13 @@ import type { Repo } from '~/utils/types'
 const props = defineProps<{ repos: Repo[] }>()
 const { t } = useI18n()
 const view = useState<'table' | 'grid'>('repository-view', () => 'table')
+const collapsedPaths = ref(new Set<string>())
+function toggle(path: string) {
+  const next = new Set(collapsedPaths.value)
+  if (next.has(path)) next.delete(path)
+  else next.add(path)
+  collapsedPaths.value = next
+}
 const rows = computed(() => {
   interface Node {
     name: string
@@ -26,11 +33,18 @@ const rows = computed(() => {
       children = node.children
     }
   }
-  const result: { name: string; path: string; depth: number; repo?: Repo }[] = []
+  const result: { name: string; path: string; depth: number; repo?: Repo; hasChildren: boolean }[] =
+    []
   function visit(nodes: Map<string, Node>, depth: number) {
     for (const node of nodes.values()) {
-      result.push({ name: node.name, path: node.path, depth, repo: node.repo })
-      visit(node.children, depth + 1)
+      result.push({
+        name: node.name,
+        path: node.path,
+        depth,
+        repo: node.repo,
+        hasChildren: !!node.children.size,
+      })
+      if (!collapsedPaths.value.has(node.path)) visit(node.children, depth + 1)
     }
   }
   visit(root, 0)
@@ -70,7 +84,31 @@ const rows = computed(() => {
                 class="flex items-center gap-2"
                 :style="{ paddingInlineStart: `${row.depth * 1.5}rem` }"
               >
+                <button
+                  v-if="row.hasChildren"
+                  type="button"
+                  class="inline-flex items-center gap-2 text-muted"
+                  :aria-expanded="!collapsedPaths.has(row.path)"
+                  :aria-label="
+                    t(collapsedPaths.has(row.path) ? 'expandFolder' : 'collapseFolder', {
+                      name: row.path,
+                    })
+                  "
+                  @click="toggle(row.path)"
+                >
+                  <UIcon
+                    :name="
+                      collapsedPaths.has(row.path)
+                        ? 'i-lucide-chevron-right'
+                        : 'i-lucide-chevron-down'
+                    "
+                    class="size-4 shrink-0"
+                  />
+                  <UIcon v-if="!row.repo" name="i-lucide-folder" class="size-4 shrink-0" />
+                  <span v-if="!row.repo" class="font-medium">{{ row.name }}</span>
+                </button>
                 <UIcon
+                  v-if="row.repo || !row.hasChildren"
                   :name="row.repo ? 'i-lucide-container' : 'i-lucide-folder'"
                   class="size-4 shrink-0 text-muted"
                 />
@@ -81,7 +119,9 @@ const rows = computed(() => {
                   class="font-semibold text-highlighted hover:text-primary"
                   >{{ row.name }}</NuxtLink
                 >
-                <span v-else class="font-medium text-muted">{{ row.name }}</span>
+                <span v-else-if="!row.hasChildren" class="font-medium text-muted">{{
+                  row.name
+                }}</span>
               </div>
             </td>
             <td :class="row.repo?.Error ? 'text-error' : 'text-muted'">

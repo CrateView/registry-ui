@@ -77,12 +77,8 @@ async function signOut() {
       <template #header="{ collapsed }">
         <BrandMark :compact="collapsed" />
       </template>
-      <template #default="{ collapsed, collapse }">
-        <SearchBox
-          v-if="ready && route.path !== '/login'"
-          :collapsed="collapsed"
-          @expand="collapse(false)"
-        />
+      <template #default="{ collapsed }">
+        <SearchBox v-if="ready && route.path !== '/login'" :collapsed="collapsed" />
         <UNavigationMenu
           :items="links"
           :collapsed="collapsed"
@@ -93,6 +89,7 @@ async function signOut() {
         />
         <UNavigationMenu
           :items="external"
+          :external-icon="false"
           :collapsed="collapsed"
           orientation="vertical"
           class="mt-auto"
@@ -125,11 +122,11 @@ async function signOut() {
             />
             {{ connected ? t('health') : t('connectionFailed') }}
           </div>
-          <p class="truncate text-xs text-muted">{{ config.brandName }}</p>
           <VersionChangelog />
         </div>
       </template>
     </UDashboardSidebar>
+    <SearchPalette v-if="ready && route.path !== '/login'" />
     <UDashboardPanel id="content" class="bg-muted/35" :ui="{ body: 'p-0 sm:p-0 gap-0' }">
       <template #header>
         <UDashboardNavbar

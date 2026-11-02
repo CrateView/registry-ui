@@ -7,6 +7,7 @@ const { number } = useFormatting()
 const registry = useRegistry()
 const pending = ref(true)
 const error = ref('')
+const reloadError = ref('')
 const summary = ref<Repo>()
 const images = ref<Image[]>([])
 const page = ref(1)
@@ -36,21 +37,30 @@ watch([term, tagSort], () => {
 })
 useHead(() => ({ title: name.value }))
 async function load() {
-  pending.value = true
+  pending.value = !summary.value
   error.value = ''
+  reloadError.value = ''
   try {
     const result = await registry.repository(name.value)
     summary.value = result.Summary
     images.value = result.Images || []
+    page.value = Math.min(page.value, Math.max(1, Math.ceil(filtered.value.length / 12)))
     if (!summary.value?.Name) error.value = t('notFound')
   } catch (failure) {
-    error.value = String(failure)
+    if (summary.value) reloadError.value = String(failure)
+    else error.value = String(failure)
   } finally {
     pending.value = false
   }
 }
 onMounted(load)
-watch(name, load)
+watch(name, () => {
+  summary.value = undefined
+  images.value = []
+  page.value = 1
+  term.value = ''
+  load()
+})
 </script>
 <template>
   <div class="page space-y-6">
@@ -124,9 +134,12 @@ watch(name, load)
             :aria-label="t('tags')"
           />
         </div>
-        <ImageTable v-if="visible.length" :images="visible" :repo="name" /><RequestState
-          v-else
-          empty /><UPagination
+        <UAlert v-if="reloadError" color="error" :description="reloadError" />
+        <ImageTable
+          :images="visible"
+          :repo="name"
+          :selection-key="`${page}:${term}:${tagSort}`"
+          @deleted="load" /><RequestState v-if="!visible.length" empty /><UPagination
           v-if="filtered.length > 12"
           v-model:page="page"
           :items-per-page="12"
