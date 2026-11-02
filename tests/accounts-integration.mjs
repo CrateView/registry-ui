@@ -553,6 +553,59 @@ esac
       (await fetch(ui.url + '/api/registry/catalog', { headers: { Cookie: newCookie } })).status,
       401,
     )
+    for (const action of ['password', 'delete']) {
+      const path = '/api/account/users/' + action
+      const body = {
+        username: 'reader',
+        ...(action === 'password' ? { password: 'admin-reset-password' } : {}),
+      }
+      assert.equal((await post(ui.url, readerCookie, path, body)).status, 403)
+      assert.equal((await post(ui.url, cookie, path, body, 'https://other.invalid')).status, 403)
+      assert.equal((await post(ui.url, cookie, path, { ...body, username: 'admin' })).status, 403)
+      assert.equal(
+        (await post(ui.url, cookie, path, { ...body, username: '../invalid' })).status,
+        400,
+      )
+    }
+    assert.equal(
+      (
+        await post(ui.url, cookie, '/api/account/users/password', {
+          username: 'reader',
+          password: 'short',
+        })
+      ).status,
+      400,
+    )
+    const readerGrants = await store.grants('reader')
+    assert.equal(
+      (
+        await post(ui.url, cookie, '/api/account/users/password', {
+          username: 'reader',
+          password: 'admin-reset-password',
+        })
+      ).status,
+      200,
+    )
+    await assert.rejects(store.authenticate('reader', password), { status: 401 })
+    await store.authenticate('reader', 'admin-reset-password')
+    assert.deepEqual(await store.grants('reader'), readerGrants)
+    assert.equal(
+      (await fetch(ui.url + '/api/registry/catalog', { headers: { Cookie: readerCookie } })).status,
+      401,
+    )
+    // Restore the reader for the remaining direct registry checks.
+    await store.setPassword('reader', password)
+    await store.grant('newuser', 'team/*', 'writer')
+    assert.equal(
+      (await post(ui.url, cookie, '/api/account/users/delete', { username: 'newuser' })).status,
+      200,
+    )
+    await assert.rejects(store.authenticate('newuser', 'new-password-456'), { status: 401 })
+    assert.deepEqual(await store.grants('newuser'), [])
+    assert.equal(
+      (await post(ui.url, cookie, '/api/account/users/delete', { username: 'newuser' })).status,
+      404,
+    )
     const disabled = await startUi(registry, mode, authUrl, realm, '')
     const disabledCookie = await login(disabled.url)
     assert.equal(

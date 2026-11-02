@@ -1,10 +1,16 @@
 import { test, expect } from '@playwright/test'
 
 test.use({ locale: 'en-US' })
-async function setup(page: import('@playwright/test').Page, allowed = true, tokenMode = false) {
+async function setup(
+  page: import('@playwright/test').Page,
+  allowed = true,
+  tokenMode = false,
+  withOtherUser = false,
+) {
   let users: { username: string; grants?: { pattern: string; role: string }[] }[] = [
     { username: 'admin', ...(tokenMode ? { grants: [{ pattern: '*', role: 'manager' }] } : {}) },
   ]
+  if (withOtherUser) users.push({ username: 'alice' })
   const submitted: unknown[] = []
   await page.route('**/api/registry/status', (route) =>
     route.fulfill({
@@ -110,3 +116,67 @@ test('password changes use schema validation and matching confirmation', async (
   await expect(page.getByText('Passwords do not match.')).toBeVisible()
   expect(submitted).toBe(false)
 })
+
+for (const tokenMode of [false, true]) {
+  test(`admin resets another password and confirms deletion (${tokenMode ? 'token' : 'basic'})`, async ({
+    page,
+  }) => {
+    await setup(page, true, tokenMode, true)
+    const passwords: unknown[] = []
+    const deletions: unknown[] = []
+    await page.route('**/api/account/users/password', async (route) => {
+      passwords.push(route.request().postDataJSON())
+      await route.fulfill({ json: { ok: true } })
+    })
+    await page.route('**/api/account/users/delete', async (route) => {
+      deletions.push(route.request().postDataJSON())
+      if (deletions.length === 1) {
+        await route.fulfill({ status: 503, json: { statusMessage: 'Account service unavailable' } })
+        return
+      }
+      await page.route('**/api/account/users', (list) =>
+        list.fulfill({ json: { users: [{ username: 'admin' }] } }),
+      )
+      await route.fulfill({ json: { ok: true } })
+    })
+    await page.goto('/users')
+    const admin = page.getByRole('row').filter({ has: page.getByRole('cell', { name: /admin/ }) })
+    await admin.getByRole('button', { name: 'Actions', exact: true }).click()
+    await expect(page.getByRole('menuitem', { name: 'Delete user', exact: true })).toHaveCount(0)
+    await page.getByRole('menuitem', { name: 'Change password', exact: true }).click()
+    await expect(page).toHaveURL(/\/account$/)
+    await expect(page.getByLabel('Current password', { exact: true })).toBeVisible()
+    await page.goto('/users')
+    const alice = page
+      .getByRole('row')
+      .filter({ has: page.getByRole('cell', { name: 'alice', exact: true }) })
+    await alice.getByRole('button', { name: 'Actions', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Change password', exact: true }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByLabel('Username', { exact: true })).toBeDisabled()
+    await expect(dialog.getByLabel('Username', { exact: true })).toHaveValue('alice')
+    await dialog.getByLabel('Password', { exact: true }).fill('replacement-password')
+    await dialog.getByLabel('Confirm new password', { exact: true }).fill('mismatch')
+    await dialog.getByRole('button', { name: 'Change password', exact: true }).click()
+    await expect(dialog.getByText('Passwords do not match.')).toBeVisible()
+    expect(passwords).toEqual([])
+    await dialog.getByLabel('Confirm new password', { exact: true }).fill('replacement-password')
+    await dialog.getByRole('button', { name: 'Change password', exact: true }).click()
+    await expect(dialog).toHaveCount(0)
+    expect(passwords).toEqual([{ username: 'alice', password: 'replacement-password' }])
+    await alice.getByRole('button', { name: 'Actions', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Delete user', exact: true }).click()
+    await expect(dialog).toContainText('Delete user alice?')
+    expect(deletions).toEqual([])
+    await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+    expect(deletions).toEqual([])
+    await alice.getByRole('button', { name: 'Actions', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Delete user', exact: true }).click()
+    await dialog.getByRole('button', { name: 'Delete user', exact: true }).click()
+    await expect(dialog.getByText(/Account service unavailable/)).toBeVisible()
+    await dialog.getByRole('button', { name: 'Delete user', exact: true }).click()
+    await expect(dialog).toHaveCount(0)
+    await expect(alice).toHaveCount(0)
+    expect(deletions).toEqual([{ username: 'alice' }, { username: 'alice' }])
+  })
+}

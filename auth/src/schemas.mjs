@@ -89,6 +89,8 @@ export const internalSchemas = {
   '/internal/login': z.strictObject({ authorization }),
   '/internal/users/list': z.strictObject({ authorization }),
   '/internal/users': accountSchemas.createUser.extend({ authorization }),
+  '/internal/users/password': accountSchemas.createUser.extend({ authorization }),
+  '/internal/users/delete': z.strictObject({ authorization, username: usernameSchema }),
   '/internal/password': accountSchemas.passwordChange.extend({ authorization }),
   '/internal/filter': z.strictObject({
     authorization,

@@ -197,6 +197,50 @@ test('management requires service secret and valid actor; basic mode has no toke
     ).status,
     401,
   )
+  for (const path of ['/internal/users/password', '/internal/users/delete']) {
+    const input = {
+      authorization,
+      username: 'bob',
+      ...(path.endsWith('password') ? { password: 'replacement-password' } : {}),
+    }
+    assert.equal((await post(path, input, 'wrong')).status, 401)
+    assert.equal((await post(path, { ...input, authorization: 'Basic YmFkOmJhZA==' })).status, 401)
+    assert.equal((await post(path, { ...input, username: 'alice' })).status, 403)
+  }
+  assert.equal(
+    (await post('/internal/users/password', { authorization, username: 'bob', password: 'short' }))
+      .status,
+    400,
+  )
+  await store.grant('bob', 'team/*', 'writer')
+  assert.equal(
+    (
+      await post('/internal/users/password', {
+        authorization,
+        username: 'bob',
+        password: 'replacement-password',
+      })
+    ).status,
+    200,
+  )
+  await assert.rejects(store.authenticate('bob', password), { status: 401 })
+  await store.authenticate('bob', 'replacement-password')
+  assert.deepEqual(await store.grants('bob'), [{ pattern: 'team/*', role: 'writer' }])
+  assert.equal(
+    (await post('/internal/users/password', { authorization, username: 'missing', password }))
+      .status,
+    404,
+  )
+  assert.equal(
+    (await post('/internal/users/delete', { authorization, username: 'bob' })).status,
+    200,
+  )
+  await assert.rejects(store.authenticate('bob', 'replacement-password'), { status: 401 })
+  assert.deepEqual(await store.grants('bob'), [])
+  assert.equal(
+    (await post('/internal/users/delete', { authorization, username: 'bob' })).status,
+    404,
+  )
   assert.equal((await fetch(base + '/token')).status, 404)
   const login = await (await post('/internal/login', { authorization })).json()
   assert.equal(login.mode, 'htpasswd')

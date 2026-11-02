@@ -111,6 +111,12 @@ export async function authServer(config) {
       } else if (url.pathname === '/internal/users') {
         await store.setPassword(input.username, input.password, { create: true })
         output = { username: input.username }
+      } else if (['/internal/users/password', '/internal/users/delete'].includes(url.pathname)) {
+        if (input.username === username) throw new Failure(403, 'User administration not allowed')
+        if (url.pathname === '/internal/users/password')
+          await store.setPassword(input.username, input.password)
+        else await store.remove(input.username)
+        output = { ok: true }
       } else if (url.pathname === '/internal/filter' && issue) {
         if (
           !Array.isArray(input.repositories) ||
