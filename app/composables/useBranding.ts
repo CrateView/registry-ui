@@ -1,8 +1,8 @@
-import type { Branding } from '#shared/branding'
+import type { Branding } from '#shared/branding';
 
 export function useBranding() {
-  const config = useRuntimeConfig().public
-  const { data } = useNuxtData<Branding>('branding')
+  const config = useRuntimeConfig().public;
+  const { data } = useNuxtData<Branding>('branding');
   return computed<Branding>(
     () =>
       data.value || {
@@ -10,5 +10,5 @@ export function useBranding() {
         logoDark: config.brandLogoDark,
         favicon: config.brandFavicon,
       },
-  )
+  );
 }

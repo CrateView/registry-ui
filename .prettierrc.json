@@ -1,1 +1,34 @@
-{ "singleQuote": true, "semi": false, "printWidth": 100, "trailingComma": "all" }
+{
+  "trailingComma": "all",
+  "semi": true,
+  "endOfLine": "auto",
+  "printWidth": 120,
+  "singleQuote": true,
+  "vueIndentScriptAndStyle": true,
+  "plugins": ["prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"],
+  "overrides": [
+    {
+      "files": "*.vue",
+      "options": {
+        "singleQuote": true,
+        "vueIndentScriptAndStyle": false,
+        "parser": "vue",
+        "htmlWhitespaceSensitivity": "ignore"
+      }
+    },
+    {
+      "files": "*.html",
+      "options": {
+        "singleQuote": false
+      }
+    },
+    {
+      "files": "*.ts",
+      "options": {
+        "singleQuote": true,
+        "parser": "typescript"
+      }
+    }
+  ],
+  "tailwindStylesheet": "./app/assets/css/main.css"
+}

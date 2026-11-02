@@ -1,7 +1,7 @@
-import { createHighlighterCore } from 'shiki/core'
-import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
+import { createHighlighterCore } from 'shiki/core';
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 
-let highlighter: ReturnType<typeof createHighlighterCore> | undefined
+let highlighter: ReturnType<typeof createHighlighterCore> | undefined;
 
 export function getCodeHighlighter() {
   return (highlighter ??= createHighlighterCore({
@@ -20,17 +20,17 @@ export function getCodeHighlighter() {
       import('shiki/langs/markdown.mjs'),
     ],
     engine: createJavaScriptRegexEngine(),
-  }))
+  }));
 }
 
 export function escapeCode(code: string) {
   return code.replace(/[&<>"']/g, (character) => {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]!
-  })
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]!;
+  });
 }
 
 export function plainCode(code: string) {
-  return `<pre class="shiki"><code>${escapeCode(code)}</code></pre>`
+  return `<pre class="shiki"><code>${escapeCode(code)}</code></pre>`;
 }
 
 export function highlightCode(
@@ -38,11 +38,11 @@ export function highlightCode(
   code: string,
   language = '',
 ) {
-  const lang = language.trim().toLowerCase()
-  if (!lang || !highlighter.getLoadedLanguages().includes(lang)) return plainCode(code)
+  const lang = language.trim().toLowerCase();
+  if (!lang || !highlighter.getLoadedLanguages().includes(lang)) return plainCode(code);
   return highlighter.codeToHtml(code, {
     lang,
     themes: { light: 'github-light', dark: 'one-dark-pro' },
     defaultColor: false,
-  })
+  });
 }

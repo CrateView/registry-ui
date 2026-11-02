@@ -1,10 +1,11 @@
-import { spawn, execFileSync } from 'node:child_process'
-import { mkdir, writeFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
-import { hashSync } from 'bcryptjs'
-const root = resolve('.dev/distribution-test')
-await mkdir(root, { recursive: true })
-await writeFile(`${root}/htpasswd`, `developer:${hashSync('test-password', 4)}\n`, { mode: 0o600 })
+import { hashSync } from 'bcryptjs';
+import { execFileSync, spawn } from 'node:child_process';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+const root = resolve('.dev/distribution-test');
+await mkdir(root, { recursive: true });
+await writeFile(`${root}/htpasswd`, `developer:${hashSync('test-password', 4)}\n`, { mode: 0o600 });
 const registry = spawn(
   'docker',
   [
@@ -31,7 +32,7 @@ const registry = spawn(
     'registry:3.1.2',
   ],
   { stdio: 'inherit' },
-)
+);
 const app = spawn(process.execPath, ['.output/server/index.mjs'], {
   stdio: 'inherit',
   env: {
@@ -43,27 +44,27 @@ const app = spawn(process.execPath, ['.output/server/index.mjs'], {
     NUXT_PUBLIC_BRAND_NAME: 'Acme Containers',
     NUXT_PUBLIC_THEME_PRIMARY: 'blue',
   },
-})
-let stopping = false
+});
+let stopping = false;
 function stop(code = 0) {
-  if (stopping) return
-  stopping = true
-  app.kill('SIGTERM')
+  if (stopping) return;
+  stopping = true;
+  app.kill('SIGTERM');
   try {
-    execFileSync('docker', ['stop', '--time', '1', 'registry-ui-test'], { stdio: 'ignore' })
+    execFileSync('docker', ['stop', '--time', '1', 'registry-ui-test'], { stdio: 'ignore' });
   } catch {
     /* The container may already have exited. */
   }
-  registry.kill('SIGTERM')
-  process.exitCode = code
+  registry.kill('SIGTERM');
+  process.exitCode = code;
 }
-for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => stop())
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => stop());
 for (const child of [registry, app]) {
   child.on('error', (error) => {
-    console.error(error)
-    stop(1)
-  })
+    console.error(error);
+    stop(1);
+  });
   child.on('exit', (code) => {
-    if (!stopping) stop(code || 1)
-  })
+    if (!stopping) stop(code || 1);
+  });
 }

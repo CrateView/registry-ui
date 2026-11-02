@@ -1,6 +1,6 @@
-import { getBranding } from '../../utils/branding'
+import { getBranding } from '../../utils/branding';
 
 export default defineEventHandler((event) => {
-  setHeader(event, 'Cache-Control', 'no-store')
-  return getBranding().links
-})
+  setHeader(event, 'Cache-Control', 'no-store');
+  return getBranding().links;
+});

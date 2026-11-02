@@ -200,7 +200,7 @@
   "fieldRequired": "هذه الخانة مطلوبه.",
   "administration": "إدارة",
   "users": "المستخدمين",
-  "usersDescription": "حسابات التسجيل. أنشئ مستخدمين هنا؛ قم بتغيير كلمة المرور الخاصة بك ضمن الحساب.",
+  "usersDescription": "حسابات السجل. أنشئ المستخدمين وغيّر كلمات المرور واحذف الحسابات هنا؛ غيّر كلمة مرورك ضمن الحساب.",
   "repositoryAccess": "الوصول إلى المستودع",
   "userCount": "مستخدمي {count}",
   "refreshUsers": "تحديث المستخدمين",
@@ -226,5 +226,9 @@
   "usernameExists": "اسم المستخدم موجود بالفعل",
   "userNotFound": "لم يتم العثور على المستخدم",
   "accountServiceUnavailable": "خدمة الحساب غير متوفرة",
-  "registryRequestFailed": "فشل طلب التسجيل ({status})"
+  "registryRequestFailed": "فشل طلب التسجيل ({status})",
+  "deleteUser": "حذف المستخدم",
+  "deleteUserConfirm": "هل تريد حذف المستخدم {username}؟ سيؤدي هذا إلى إزالة الحساب وصلاحيات الوصول إلى المستودعات نهائيًا.",
+  "userDeleted": "تم حذف المستخدم.",
+  "userPasswordChanged": "تم تغيير كلمة المرور."
 }

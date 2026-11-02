@@ -200,7 +200,7 @@
   "fieldRequired": "यह फ़ील्ड आवश्यक है.",
   "administration": "प्रशासन",
   "users": "उपयोगकर्ताओं",
-  "usersDescription": "रजिस्ट्री खाते. यहां उपयोगकर्ता बनाएं; अकाउंट के अंतर्गत अपना पासवर्ड बदलें।",
+  "usersDescription": "रजिस्ट्री खाते। यहाँ उपयोगकर्ता बनाएँ, पासवर्ड बदलें और खाते हटाएँ; अपना पासवर्ड खाता अनुभाग में बदलें।",
   "repositoryAccess": "भंडार पहुंच",
   "userCount": "{count} उपयोगकर्ता",
   "refreshUsers": "उपयोगकर्ताओं को ताज़ा करें",
@@ -226,5 +226,9 @@
   "usernameExists": "उपयोगकर्ता का नाम पहले से मौजूद है",
   "userNotFound": "उपयोगकर्ता नहीं मिला",
   "accountServiceUnavailable": "खाता सेवा अनुपलब्ध है",
-  "registryRequestFailed": "रजिस्ट्री अनुरोध विफल ({status})"
+  "registryRequestFailed": "रजिस्ट्री अनुरोध विफल ({status})",
+  "deleteUser": "उपयोगकर्ता हटाएँ",
+  "deleteUserConfirm": "उपयोगकर्ता {username} हटाएँ? खाता और उसकी रिपॉज़िटरी पहुँच स्थायी रूप से हटा दी जाएगी।",
+  "userDeleted": "उपयोगकर्ता हटा दिया गया।",
+  "userPasswordChanged": "पासवर्ड बदल दिया गया।"
 }

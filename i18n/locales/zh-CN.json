@@ -200,7 +200,7 @@
   "fieldRequired": "此字段是必需的。",
   "administration": "行政",
   "users": "用户",
-  "usersDescription": "注册帐户。在这里创建用户；在帐户下更改您自己的密码。",
+  "usersDescription": "注册表账户。在此创建用户、更改密码和删除账户；请在“账户”中管理自己的密码。",
   "repositoryAccess": "存储库访问",
   "userCount": "{count} 用户",
   "refreshUsers": "刷新用户",
@@ -226,5 +226,9 @@
   "usernameExists": "用户名已存在",
   "userNotFound": "未找到用户",
   "accountServiceUnavailable": "账户服务不可用",
-  "registryRequestFailed": "镜像仓库请求失败 ({status})"
+  "registryRequestFailed": "镜像仓库请求失败 ({status})",
+  "deleteUser": "删除用户",
+  "deleteUserConfirm": "确定删除用户 {username}？此操作将永久删除该账户及其仓库访问权限。",
+  "userDeleted": "用户已删除。",
+  "userPasswordChanged": "密码已更改。"
 }

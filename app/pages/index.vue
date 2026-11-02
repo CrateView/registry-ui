@@ -1,4 +1,7 @@
+<template>
+  <div />
+</template>
+
 <script setup lang="ts">
-await navigateTo('/home', { replace: true })
+await navigateTo('/home', { replace: true });
 </script>
-<template><div /></template>

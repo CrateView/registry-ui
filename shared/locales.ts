@@ -130,12 +130,12 @@ export const supportedLocales = [
     og: 'ja_JP',
     collection: 'docs_ja',
   },
-] as const
-export type LocaleCode = (typeof supportedLocales)[number]['code']
-export const defaultLocale: LocaleCode = 'en'
+] as const;
+export type LocaleCode = (typeof supportedLocales)[number]['code'];
+export const defaultLocale: LocaleCode = 'en';
 export function getLocale(code: string) {
-  return supportedLocales.find((locale) => locale.code === code) || supportedLocales[0]
+  return supportedLocales.find((locale) => locale.code === code) || supportedLocales[0];
 }
 export function localizedPath(code: string, path: string) {
-  return code === defaultLocale ? path : `/${code}${path === '/' ? '' : path}`
+  return code === defaultLocale ? path : `/${code}${path === '/' ? '' : path}`;
 }

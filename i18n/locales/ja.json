@@ -200,7 +200,7 @@
   "fieldRequired": "この項目は必須です。",
   "administration": "管理",
   "users": "ユーザー",
-  "usersDescription": "レジストリアカウント。ここでユーザーを作成します。 「アカウント」で自分のパスワードを変更します。",
+  "usersDescription": "レジストリアカウント。ここでユーザーの作成、パスワードの変更、アカウントの削除ができます。自分のパスワードは「アカウント」で管理してください。",
   "repositoryAccess": "リポジトリへのアクセス",
   "userCount": "{count} ユーザー",
   "refreshUsers": "ユーザーを更新する",
@@ -226,5 +226,9 @@
   "usernameExists": "ユーザー名はすでに存在します",
   "userNotFound": "ユーザーが見つかりません",
   "accountServiceUnavailable": "アカウントサービスが利用できません",
-  "registryRequestFailed": "レジストリ要求が失敗しました ({status})"
+  "registryRequestFailed": "レジストリ要求が失敗しました ({status})",
+  "deleteUser": "ユーザーを削除",
+  "deleteUserConfirm": "ユーザー {username} を削除しますか？アカウントとリポジトリへのアクセス権が完全に削除されます。",
+  "userDeleted": "ユーザーを削除しました。",
+  "userPasswordChanged": "パスワードを変更しました。"
 }
