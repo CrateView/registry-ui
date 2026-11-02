@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { getLocale } from '#shared/locales'
 import { getUiLocale } from '~/utils/locales'
-const config = useRuntimeConfig().public
+const runtimeConfig = useRuntimeConfig()
+useFetch(`${runtimeConfig.app.baseURL.replace(/\/$/, '')}/api/branding`, { key: 'branding' })
+const branding = useBranding()
+const config = runtimeConfig.public
 const { locale, t } = useI18n()
 const uiLocale = computed(() => getUiLocale(locale.value))
 useHead(() => ({
@@ -13,7 +16,7 @@ useHead(() => ({
     ),
   meta: [{ name: 'description', content: config.brandDescription || t('overviewHint') }],
   link: [
-    { rel: 'icon', href: safeUrl(config.brandFavicon) || '/favicon.ico' },
+    { rel: 'icon', href: safeUrl(branding.value.favicon) || '/favicon.ico' },
     { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
   ],
 }))
