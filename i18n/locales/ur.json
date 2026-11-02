@@ -200,7 +200,7 @@
   "fieldRequired": "یہ فیلڈ درکار ہے۔",
   "administration": "انتظامیہ",
   "users": "صارفین",
-  "usersDescription": "رجسٹری اکاؤنٹس۔ یہاں صارفین بنائیں؛ اکاؤنٹ کے تحت اپنا پاس ورڈ تبدیل کریں۔",
+  "usersDescription": "رجسٹری اکاؤنٹس۔ یہاں صارف بنائیں، پاس ورڈ تبدیل کریں اور اکاؤنٹس حذف کریں؛ اپنا پاس ورڈ اکاؤنٹ میں تبدیل کریں۔",
   "repositoryAccess": "ذخیرہ تک رسائی",
   "userCount": "{count} صارفین",
   "refreshUsers": "صارفین کو ریفریش کریں۔",
@@ -226,5 +226,9 @@
   "usernameExists": "صارف نام پہلے سے موجود ہے۔",
   "userNotFound": "صارف نہیں ملا",
   "accountServiceUnavailable": "اکاؤنٹ سروس دستیاب نہیں ہے۔",
-  "registryRequestFailed": "رجسٹری کی درخواست ناکام ہوگئی ({status})"
+  "registryRequestFailed": "رجسٹری کی درخواست ناکام ہوگئی ({status})",
+  "deleteUser": "صارف حذف کریں",
+  "deleteUserConfirm": "صارف {username} کو حذف کریں؟ اکاؤنٹ اور اس کی ریپوزٹری تک رسائی مستقل طور پر ختم ہو جائے گی۔",
+  "userDeleted": "صارف حذف ہو گیا۔",
+  "userPasswordChanged": "پاس ورڈ تبدیل ہو گیا۔"
 }

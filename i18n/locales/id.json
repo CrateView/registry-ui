@@ -200,7 +200,7 @@
   "fieldRequired": "Bidang ini wajib diisi.",
   "administration": "Administrasi",
   "users": "Pengguna",
-  "usersDescription": "Akun registri. Buat pengguna di sini; ubah kata sandi Anda sendiri di bawah Akun.",
+  "usersDescription": "Akun registri. Buat pengguna, ubah kata sandi, dan hapus akun di sini; kelola kata sandi Anda sendiri di Akun.",
   "repositoryAccess": "Akses repositori",
   "userCount": "Pengguna {count}",
   "refreshUsers": "Segarkan pengguna",
@@ -226,5 +226,9 @@
   "usernameExists": "Nama pengguna sudah ada",
   "userNotFound": "Pengguna tidak ditemukan",
   "accountServiceUnavailable": "Layanan akun tidak tersedia",
-  "registryRequestFailed": "Permintaan registri gagal ({status})"
+  "registryRequestFailed": "Permintaan registri gagal ({status})",
+  "deleteUser": "Hapus pengguna",
+  "deleteUserConfirm": "Hapus pengguna {username}? Akun dan akses repositorinya akan dihapus secara permanen.",
+  "userDeleted": "Pengguna dihapus.",
+  "userPasswordChanged": "Kata sandi diubah."
 }

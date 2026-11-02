@@ -200,7 +200,7 @@
   "fieldRequired": "Dieses Feld ist erforderlich.",
   "administration": "Administration",
   "users": "Benutzer",
-  "usersDescription": "Registry-Konten. Hier legst du Benutzer an; dein eigenes Passwort änderst du unter Konto.",
+  "usersDescription": "Registry-Konten. Hier Benutzer erstellen, Passwörter ändern und Konten löschen; das eigene Passwort unter Konto verwalten.",
   "repositoryAccess": "Repository-Zugriff",
   "userCount": "{count} Benutzer",
   "refreshUsers": "Benutzer aktualisieren",
@@ -226,5 +226,9 @@
   "usernameExists": "Benutzername bereits vorhanden",
   "userNotFound": "Benutzer nicht gefunden",
   "accountServiceUnavailable": "Kontodienst nicht verfügbar",
-  "registryRequestFailed": "Registry-Anfrage fehlgeschlagen ({status})"
+  "registryRequestFailed": "Registry-Anfrage fehlgeschlagen ({status})",
+  "deleteUser": "Benutzer löschen",
+  "deleteUserConfirm": "Benutzer {username} löschen? Konto und Repository-Zugriff werden dauerhaft entfernt.",
+  "userDeleted": "Benutzer gelöscht.",
+  "userPasswordChanged": "Passwort geändert."
 }

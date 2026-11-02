@@ -21,7 +21,7 @@ explicitly enabled. Arbitrary external Bearer services and OIDC are not supporte
 
 From the repository root, copy `.env.example` to `.env`. Generate a secret with
 `openssl rand -base64 32`, set `AUTH_MANAGEMENT_SECRET`, and choose permitted
-creators using `NUXT_USER_CREATION_ALLOWED_USERS=admin`. Also configure a stable
+administrators using `NUXT_USER_CREATION_ALLOWED_USERS=admin`. Also configure a stable
 `NUXT_SESSION_PASSWORD` for the UI. Build the current UI using the build override.
 Bootstrap accounts **before starting Distribution**, which otherwise creates its
 own default account if `htpasswd` is absent:
@@ -97,7 +97,7 @@ rollback; switching back to Basic restores equal registry access for all account
 
 ## UI and management boundary
 
-UI server settings (the overlays supply these except the creator policy):
+UI server settings (the overlays supply these except the administrator policy):
 
 | ENV                                | Meaning                                                                |
 | ---------------------------------- | ---------------------------------------------------------------------- |
@@ -108,26 +108,31 @@ UI server settings (the overlays supply these except the creator policy):
 | `NUXT_USER_CREATION_ALLOWED_USERS` | Empty: nobody; `alice,bob`: listed users; `*`: all authenticated users |
 
 The sidebar groups Settings and Users under Administration. The Users page lists
-accounts and creates users for members of `NUXT_USER_CREATION_ALLOWED_USERS`;
+accounts and lets members of `NUXT_USER_CREATION_ALLOWED_USERS` create users,
+reset other users’ passwords, and delete other accounts after confirmation;
 other users cannot list accounts through either the UI or Nitro API. Token grants
-are displayed read-only; Basic mode has no role column.
+are displayed read-only; Basic mode has no role column. The table uses the Explore
+table styling, with a right-aligned three-dot action menu for each account. The
+current user’s menu links to Account for password changes and never offers deletion.
 
 Every managed user can change their own password under Account, supplying their current one.
 The UI signs out after a change; other UI sessions using the old password stop
-working on their next credential check. User creation is checked by Nitro on every
-request, regardless of visible controls. Creators cannot reset other users'
-passwords or assign grants. In Basic mode, creators therefore grant new accounts
+working on their next credential check. Listing, creation, administrative password
+resets and deletion are checked by Nitro on every request, regardless of visible
+controls. Administrative resets do not require the target’s current password and
+preserve token grants. Deletion removes both the account and its grants; self-deletion
+is rejected. Grant assignment remains CLI-only. In Basic mode, administrators grant new accounts
 the same broad registry access they already have. In token mode, creation alone
 grants no registry access.
 
 The internal API requires a separate service credential **and** valid user
-credentials. It trusts the UI backend to enforce the ENV creator policy. Keep
+credentials. It trusts the UI backend to enforce the ENV administrator policy. Keep
 `/internal/*` off the public reverse proxy and restrict service access to the
 private network. A holder of the management secret plus a valid user password
-can create accounts directly. Never expose that secret through `NUXT_PUBLIC_*`.
+can create, reset and delete accounts directly. Never expose that secret through `NUXT_PUBLIC_*`.
 
 Internal POST endpoints: `/internal/login`, `/internal/users`, `/internal/users/list`,
-`/internal/password`, `/internal/access`, `/internal/filter`, `/internal/token`.
+`/internal/users/password`, `/internal/users/delete`, `/internal/password`, `/internal/access`, `/internal/filter`, `/internal/token`.
 They use `Authorization: Bearer <management secret>` and JSON containing the
 actor's Basic authorization value. Privileged catalog tokens are backend-only;
 UI catalog results are filtered by repository read rights. Registry-wide monitoring

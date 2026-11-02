@@ -200,7 +200,7 @@
   "fieldRequired": "Ce champ est obligatoire.",
   "administration": "Administration",
   "users": "Utilisateurs",
-  "usersDescription": "Comptes de registre. Créez des utilisateurs ici ; changez votre propre mot de passe sous Compte.",
+  "usersDescription": "Comptes du registre. Créez des utilisateurs, modifiez les mots de passe et supprimez des comptes ici ; gérez votre propre mot de passe dans Compte.",
   "repositoryAccess": "Accès au référentiel",
   "userCount": "Utilisateurs de {count}",
   "refreshUsers": "Actualiser les utilisateurs",
@@ -226,5 +226,9 @@
   "usernameExists": "Le nom d'utilisateur existe déjà",
   "userNotFound": "Utilisateur introuvable",
   "accountServiceUnavailable": "Service de compte indisponible",
-  "registryRequestFailed": "Échec de la demande de registre ({status})"
+  "registryRequestFailed": "Échec de la demande de registre ({status})",
+  "deleteUser": "Supprimer l’utilisateur",
+  "deleteUserConfirm": "Supprimer l’utilisateur {username} ? Le compte et ses accès aux dépôts seront définitivement supprimés.",
+  "userDeleted": "Utilisateur supprimé.",
+  "userPasswordChanged": "Mot de passe modifié."
 }

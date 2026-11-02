@@ -200,7 +200,7 @@
   "fieldRequired": "Este campo es obligatorio.",
   "administration": "Administración",
   "users": "Usuarios",
-  "usersDescription": "Cuentas registrales. Cree usuarios aquí; cambie su propia contraseña en Cuenta.",
+  "usersDescription": "Cuentas del registro. Crea usuarios, cambia contraseñas y elimina cuentas aquí; cambia tu propia contraseña en Cuenta.",
   "repositoryAccess": "Acceso al repositorio",
   "userCount": "Usuarios de {count}",
   "refreshUsers": "Actualizar usuarios",
@@ -226,5 +226,9 @@
   "usernameExists": "El nombre de usuario ya existe",
   "userNotFound": "Usuario no encontrado",
   "accountServiceUnavailable": "Servicio de cuenta no disponible",
-  "registryRequestFailed": "Error en la solicitud de registro ({status})"
+  "registryRequestFailed": "Error en la solicitud de registro ({status})",
+  "deleteUser": "Eliminar usuario",
+  "deleteUserConfirm": "¿Eliminar al usuario {username}? Se eliminarán permanentemente la cuenta y su acceso a los repositorios.",
+  "userDeleted": "Usuario eliminado.",
+  "userPasswordChanged": "Contraseña cambiada."
 }

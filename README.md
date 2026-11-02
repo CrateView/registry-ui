@@ -96,7 +96,7 @@ For a standalone frontend, set `NUXT_REGISTRY_UPSTREAM` to your existing registr
 - OCI annotations/labels for description, vendor, source, docs and license. Registry push time and download counts are not available from this API and are not invented from image creation times.
 - Raw manifest/config documents, OCI referrers and artifact annotations, with the standard digest-tag index fallback for registries without a referrers endpoint. The UI reads fallback indexes maintained by OCI clients; it does not invent an index by scanning all manifests.
 - Docker, Podman, Skopeo and ORAS commands and clipboard support.
-- Anonymous access, native `htpasswd` Basic Auth, and an optional independent [account service](auth/README.md) with Distribution token authorization. UI users can change passwords; an ENV allowlist controls account creation. External token/Bearer services and OIDC remain unsupported.
+- Anonymous access, native `htpasswd` Basic Auth, and an optional independent [account service](auth/README.md) with Distribution token authorization. UI users can change passwords; an ENV allowlist controls account administration. External token/Bearer services and OIDC remain unsupported.
 - Favorites, CVE scanning, a dependency index, download statistics and signature trust verification are outside the standard registry API and are not implemented. Referrer artifacts may contain signatures, but listing them does not claim cryptographic validation.
 
 Metadata is loaded on demand, with bounded parallelism per request. Name search loads the full paginated catalog; platform metadata is derived for visible repositories rather than pretending there is a server-side metadata search index. Large tag lists can require many requests to obtain sortable creation dates.
@@ -115,7 +115,7 @@ Manifest deletion is off by default in the UI. Enable `NUXT_REGISTRY_DELETE_ENAB
 
 ## Optional account management
 
-See [the account service guide](auth/README.md) for both modes, Compose overlays, bootstrap, CLI and token grants. Account storage uses `htpasswd` and a JSON grants file, with no SQLite. Docker can connect directly to Distribution independently of the UI. Set `NUXT_USER_CREATION_ALLOWED_USERS` to a comma-separated allowlist or `*`; the default allows nobody to create accounts through the UI. The Administration section contains Settings and the Users page. The ENV allowlist controls account listing and creation; token grants are read-only in the UI. Password changes under Account require the current password. Forms and account APIs share Zod validation.
+See [the account service guide](auth/README.md) for both modes, Compose overlays, bootstrap, CLI and token grants. Account storage uses `htpasswd` and a JSON grants file, with no SQLite. Docker can connect directly to Distribution independently of the UI. Set `NUXT_USER_CREATION_ALLOWED_USERS` to a comma-separated allowlist or `*`; the default allows nobody to administer accounts through the UI. The Administration section contains Settings and the Users page. The ENV allowlist controls account listing, creation, password resets and deletion. Each user row has a right-aligned three-dot menu; deleting another account requires confirmation and removes its grants. The current user’s menu links to Account; self-deletion is blocked. Token grants remain read-only in the UI. Password changes under Account require the current password. Forms and account APIs share Zod validation.
 
 ## Branding and theme
 
@@ -335,3 +335,7 @@ before enabling this release step. Full App/repository-rule setup, promotion,
 screenshot fixtures, and recovery are documented in crateview/website's README.
 Server deployment remains manual. If dispatch fails, rerun Release: its existing
 receipt preserves the original documentation revision.
+
+## Coding conventions
+
+See [coding guidelines](docs/coding-guidelines.md) for formatting, Vue component patterns, and verification commands.

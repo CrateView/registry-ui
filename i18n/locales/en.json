@@ -200,7 +200,7 @@
   "fieldRequired": "This field is required.",
   "administration": "Administration",
   "users": "Users",
-  "usersDescription": "Registry accounts. Create users here; change your own password under Account.",
+  "usersDescription": "Registry accounts. Create users, change passwords and delete accounts here; manage your own password under Account.",
   "repositoryAccess": "Repository access",
   "userCount": "{count} users",
   "refreshUsers": "Refresh users",
@@ -226,5 +226,9 @@
   "usernameExists": "Username already exists",
   "userNotFound": "User not found",
   "accountServiceUnavailable": "Account service unavailable",
-  "registryRequestFailed": "Registry request failed ({status})"
+  "registryRequestFailed": "Registry request failed ({status})",
+  "deleteUser": "Delete user",
+  "deleteUserConfirm": "Delete user {username}? This permanently removes the account and its repository access.",
+  "userDeleted": "User deleted.",
+  "userPasswordChanged": "Password changed."
 }
