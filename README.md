@@ -317,6 +317,25 @@ review. Update all dictionaries when adding messages; tests enforce coverage and
 placeholder parity. Application request errors are localized at the UI boundary;
 API responses retain their existing protocol. No runtime translation service is used.
 
+## Automatic documentation promotion
+
+After a stable image and GitHub release are published, Release attaches
+`docs-promotion.json` with the full release tag, exact registry commit, and the
+current crateview/docs main commit. Existing receipts are reused, never overwritten;
+a moved tag or conflicting receipt fails. It then dispatches the website's
+`promote-docs.yml`. A website reconciliation schedule recovers missed dispatches.
+Keep next documentation current in every language before releasing; later docs
+commits are not included in an already pinned request.
+
+Configure Actions variable `DOCS_APP_ID` and secret `DOCS_APP_PRIVATE_KEY` for a
+GitHub App installed on crateview/website with Actions write access. The native
+GITHUB_TOKEN writes the registry release asset; the App token only dispatches the
+website workflow. Merge the companion docs templates and website coordinator
+before enabling this release step. Full App/repository-rule setup, promotion,
+screenshot fixtures, and recovery are documented in crateview/website's README.
+Server deployment remains manual. If dispatch fails, rerun Release: its existing
+receipt preserves the original documentation revision.
+
 ## Coding conventions
 
 See [coding guidelines](docs/coding-guidelines.md) for formatting, Vue component patterns, and verification commands.
