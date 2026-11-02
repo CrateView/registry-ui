@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { de, en } from '@nuxt/ui/locale'
-const { t } = useI18n()
-const { locale, selectLocale } = useInterfacePreferences()
+import type { LocaleCode } from '#shared/locales'
+import { languageOptions } from '~/utils/locales'
+const { locale, setLocale, setLocaleCookie, t } = useI18n()
+async function changeLocale(value: LocaleCode) {
+  setLocaleCookie(value)
+  await setLocale(value)
+}
 </script>
 <template>
-  <ULocaleSelect
+  <USelect
     :model-value="locale"
-    :locales="[en, de]"
+    :items="languageOptions"
     :aria-label="t('language')"
-    class="w-48"
-    @update:model-value="selectLocale($event)"
+    class="w-44 max-w-full"
+    size="sm"
+    @update:model-value="changeLocale($event as LocaleCode)"
   />
 </template>

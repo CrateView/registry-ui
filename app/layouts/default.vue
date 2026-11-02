@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import { getLocale } from '#shared/locales'
 import type { DropdownMenuItem } from '@nuxt/ui'
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const sidebarSide = computed(() =>
+  getLocale(locale.value).dir === 'rtl' ? ('right' as const) : ('left' as const),
+)
 const route = useRoute()
 const config = useRuntimeConfig().public
 const registry = useRegistry()
@@ -79,6 +83,8 @@ async function signOut() {
   >
     <UDashboardSidebar
       id="registry"
+      :side="sidebarSide"
+      :menu="{ side: sidebarSide }"
       collapsible
       resizable
       :default-size="16"
@@ -157,6 +163,7 @@ async function signOut() {
           </template>
           <template #leading="{ sidebarCollapsed }">
             <UDashboardSidebarCollapse
+              :side="sidebarSide"
               :aria-label="sidebarCollapsed?.value ? t('expand') : t('collapse')"
             />
           </template>

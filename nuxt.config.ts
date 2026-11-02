@@ -1,3 +1,4 @@
+import { supportedLocales } from './shared/locales'
 import { version } from './package.json'
 
 export default defineNuxtConfig({
@@ -18,10 +19,13 @@ export default defineNuxtConfig({
   i18n: {
     strategy: 'no_prefix',
     defaultLocale: 'en',
-    locales: [
-      { code: 'en', language: 'en-US', file: 'en.json', name: 'English' },
-      { code: 'de', language: 'de-DE', file: 'de.json', name: 'Deutsch' },
-    ],
+    locales: supportedLocales.map(({ code, language, name, file, dir }) => ({
+      code,
+      language,
+      name,
+      file,
+      dir,
+    })),
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'registry-ui-language',
@@ -50,7 +54,7 @@ export default defineNuxtConfig({
       themeRadius: '',
       themeFontFamily: '',
       brandName: 'Crateview',
-      brandDescription: 'A modern interface for Docker and OCI container registries.',
+      brandDescription: '',
       brandLogoLight: '/branding/crateview-mark-256.png',
       brandLogoDark: '/branding/crateview-mark-256.png',
       brandFavicon: '/favicon.ico',

@@ -23,5 +23,5 @@ onMounted(() =>
 </script>
 <template>
   <!-- eslint-disable vue/no-v-html --><!-- Only escaped text or Shiki-generated HTML is rendered. -->
-  <div class="code-block" v-html="html" />
+  <div dir="ltr" class="code-block" v-html="html" />
 </template>

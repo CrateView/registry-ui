@@ -5,7 +5,7 @@ defineEmits<{ retry: [] }>()
 </script>
 <template>
   <div v-if="pending" role="status" class="flex justify-center p-16 text-muted">
-    <UIcon name="i-lucide-loader-circle" class="mr-2 size-5 animate-spin" />{{ t('loading') }}
+    <UIcon name="i-lucide-loader-circle" class="me-2 size-5 animate-spin" />{{ t('loading') }}
   </div>
   <div v-else-if="error" class="space-y-3">
     <UAlert

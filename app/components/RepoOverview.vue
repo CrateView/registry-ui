@@ -122,7 +122,7 @@ const rows = computed(() => {
                   :to="repoPath(row.path)"
                   :title="row.path"
                   class="font-semibold text-highlighted hover:text-primary"
-                  >{{ row.name }}</NuxtLink
+                  ><bdi>{{ row.name }}</bdi></NuxtLink
                 >
                 <span v-else-if="!row.hasChildren" class="font-medium text-muted">{{
                   row.name
@@ -132,9 +132,9 @@ const rows = computed(() => {
             <td :class="row.repo?.Error ? 'text-error' : 'text-muted'">
               {{
                 row.repo
-                  ? row.repo.Error ||
-                    row.repo.RepresentativeImage?.Description ||
-                    t('noDescription')
+                  ? row.repo.Error
+                    ? t('error')
+                    : row.repo.RepresentativeImage?.Description || t('noDescription')
                   : ''
               }}
             </td>

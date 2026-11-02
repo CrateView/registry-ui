@@ -121,7 +121,7 @@ See [the account service guide](auth/README.md) for both modes, Compose overlays
 
 See [.env.example](.env.example). Runtime `NUXT_PUBLIC_BRAND_*` variables control name, description, separate light/dark logos, favicon, page title template and optional links. Runtime `NUXT_PUBLIC_THEME_*` variables override the defaults in `app/app.config.ts`: primary `red`, neutral `zinc`, radius and font family. Other Nuxt UI component/icon overrides use standard `ui` app config; CSS tokens live in `app/assets/css/main.css`.
 
-Defaults use the system color scheme. Users can select System/Light/Dark and English/German; preferences persist independently of sign-out. Custom logos/fonts can be bundled under `public/` or served via configured HTTP(S) URLs. No theme-color editor is shown to end users.
+Defaults use the system color scheme. Users can select System/Light/Dark and one of 13 interface languages; preferences persist independently of sign-out. Custom logos/fonts can be bundled under `public/` or served via configured HTTP(S) URLs. No theme-color editor is shown to end users.
 
 ## Checks
 
@@ -282,3 +282,19 @@ npm run test:monitoring:integration
 The isolated integration test creates and removes its own registry, checks actual
 manifest notifications and storage deltas, and can take about two minutes while
 waiting for background samples. Browser coverage: `tests/monitoring.spec.ts`.
+
+## Localization
+
+`shared/locales.ts` defines English, German, Simplified Chinese (`zh-CN`), Hindi,
+Spanish, Arabic, French, Bengali, Brazilian Portuguese (`pt-BR`), Indonesian,
+Urdu, Russian and Japanese. Nuxt i18n, Nuxt UI and language controls use this
+catalog. Registry routes remain unprefixed. English is the default and fallback;
+`registry-ui-language` remembers explicit choices independently of sign-out.
+Arabic and Urdu use RTL; commands, code and technical identifiers remain LTR.
+
+Message dictionaries live in `i18n/locales/<locale>.json`. English is the editorial
+reference; preserve interpolation arguments when translating. The eleven new
+languages initially use machine translation and have not received native-speaker
+review. Update all dictionaries when adding messages; tests enforce coverage and
+placeholder parity. Application request errors are localized at the UI boundary;
+API responses retain their existing protocol. No runtime translation service is used.

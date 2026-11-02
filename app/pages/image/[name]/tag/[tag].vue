@@ -122,6 +122,7 @@ async function afterDelete(allDeleted: boolean) {
       variant="link"
       color="neutral"
       icon="i-lucide-arrow-left"
+      :ui="{ leadingIcon: 'rtl:rotate-180' }"
       class="p-0"
       >{{ name }}</UButton
     ><RequestState :pending="pending" :error="error" @retry="load"
@@ -152,7 +153,7 @@ async function afterDelete(allDeleted: boolean) {
             :aria-label="t('platform')"
             class="min-w-48"
           /><button
-            class="mono min-w-0 break-all text-left text-xs text-muted hover:text-primary"
+            class="mono min-w-0 break-all text-start text-xs text-muted hover:text-primary"
             :aria-label="t('copy') + ' ' + t('digest')"
             @click="copy(image.Digest)"
           >

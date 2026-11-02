@@ -67,7 +67,7 @@ test('mobile sidebar closes after navigation without horizontal overflow', async
   await expect(page).toHaveURL(/\/settings$/)
   await expect(dialog).toBeHidden()
   await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Language', exact: true })).toBeVisible()
+  await expect(page.getByRole('combobox', { name: 'Language', exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
 })
 
@@ -90,7 +90,7 @@ test('settings controls persist theme and language across navigation and reload'
   await page.getByRole('button', { name: 'Color mode', exact: true }).click()
   await page.getByRole('option', { name: 'Dark', exact: true }).click()
   await expect(page.locator('html')).toHaveClass(/dark/)
-  await page.getByRole('button', { name: 'Language', exact: true }).click()
+  await page.getByRole('combobox', { name: 'Language', exact: true }).click()
   await page.getByRole('option', { name: /Deutsch/ }).click()
   await expect(page.getByRole('heading', { name: 'Einstellungen', exact: true })).toBeVisible()
   await page.reload()

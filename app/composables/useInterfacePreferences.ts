@@ -1,3 +1,4 @@
+import { supportedLocales } from '#shared/locales'
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { localePreferenceSchema, themePreferenceSchema } from '../../shared/preferences'
 import { transitionTheme } from '../utils/theme-transition'
@@ -38,12 +39,8 @@ export function useInterfacePreferences() {
     })),
   )
   const languageItems = computed<DropdownMenuItem[]>(() =>
-    [
-      { code: 'en', label: 'English', flag: '🇺🇸' },
-      { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-    ].map((language) => ({
-      label: language.label,
-      flag: language.flag,
+    supportedLocales.map((language) => ({
+      label: language.name,
       type: 'checkbox',
       checked: locale.value === language.code,
       onSelect(event) {

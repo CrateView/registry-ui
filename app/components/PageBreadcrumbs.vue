@@ -34,7 +34,7 @@ const items = computed<BreadcrumbItem[]>(() => {
 <template>
   <UBreadcrumb :items="items" class="min-w-0">
     <template #item-label="{ item }"
-      ><span :title="item.label">{{ item.label }}</span></template
+      ><bdi :title="item.label">{{ item.label }}</bdi></template
     >
   </UBreadcrumb>
 </template>

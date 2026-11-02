@@ -28,7 +28,7 @@ function date(value: string | null) {
         :title="t('updateAvailable', { version: latest?.version })"
         :aria-label="t('updateAvailable', { version: latest?.version })"
       />
-      <span class="ml-auto flex items-center gap-1">
+      <span class="ms-auto flex items-center gap-1">
         {{ t('changelogTitle') }}
         <UIcon name="i-lucide-chevron-right" class="size-3" />
       </span>
