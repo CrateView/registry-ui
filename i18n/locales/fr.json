@@ -230,5 +230,7 @@
   "deleteUser": "Supprimer l’utilisateur",
   "deleteUserConfirm": "Supprimer l’utilisateur {username} ? Le compte et ses accès aux dépôts seront définitivement supprimés.",
   "userDeleted": "Utilisateur supprimé.",
-  "userPasswordChanged": "Mot de passe modifié."
+  "userPasswordChanged": "Mot de passe modifié.",
+  "pwaOfflineTitle": "Vous êtes hors ligne",
+  "pwaOfflineDescription": "Connectez-vous à Internet, puis réessayez d’ouvrir votre registre."
 }

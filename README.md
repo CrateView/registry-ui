@@ -105,7 +105,18 @@ Metadata is loaded on demand, with bounded parallelism per request. Name search 
 
 Supported browsers can install Crateview using their native install or Add to Home
 Screen action. The app opens in standalone mode. Use HTTPS in production;
-localhost is supported for local testing. Browser installation UI varies.
+localhost is supported for local testing. Browser installation UI varies. After one successful online visit and service-worker
+installation, opening or reloading the app offline shows a localized connection
+message with a retry button. Retry reloads the original URL after connectivity
+returns. Language follows the saved language choice, then browser preferences,
+with English fallback; Arabic and Urdu use RTL.
+
+The worker only handles app document navigations. Registry/account API requests
+and `/v2/` traffic are never cached or replaced with HTML. No responses are saved
+to Cache Storage, and there is no offline registry browsing. Existing open screens
+keep their usual request-error handling. Service workers are disabled during
+`npm run dev`; use a production build to test this behavior. Worker updates follow
+the browser lifecycle without forcing open tabs to reload.
 
 The install name and description follow `NUXT_PUBLIC_BRAND_NAME` and
 `NUXT_PUBLIC_BRAND_DESCRIPTION`. The manifest and icons respect `NUXT_APP_BASE_URL`,

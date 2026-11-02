@@ -1,8 +1,8 @@
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -58,6 +58,111 @@ async function start(base, overrides = {}) {
   }
   throw new Error(`Production server did not start: ${output}`);
 }
+async function verifyOffline(page, context, server, base, files) {
+  const workerResponse = await fetch(server.url + 'sw.js');
+  assert.match(workerResponse.headers.get('content-type'), /application\/javascript/);
+  assert.equal(workerResponse.headers.get('cache-control'), 'no-cache');
+  await page.waitForFunction(
+    async () => Boolean((await navigator.serviceWorker.getRegistration())?.active),
+    undefined,
+    { timeout: 15000 },
+  );
+  const registration = await page.evaluate(async () => {
+    const worker = await navigator.serviceWorker.ready;
+    return { scope: worker.scope, script: worker.active.scriptURL };
+  });
+  assert.deepEqual(registration, { scope: server.url, script: server.url + 'sw.js' });
+  await page.reload();
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+  await context.addCookies([{ name: 'registry-ui-session', value: 'synthetic-invalid-session', url: server.url }]);
+  for (const path of ['api/branding', 'api/account/users', 'v2/']) {
+    const expected = await context.request.get(server.url + path);
+    const actual = await page.evaluate(async (url) => {
+      const response = await fetch(url);
+      return {
+        status: response.status,
+        contentType: response.headers.get('content-type'),
+        body: await response.text(),
+      };
+    }, server.url + path);
+    assert.equal(actual.status, expected.status());
+    assert.equal(actual.contentType, expected.headers()['content-type'] || null);
+    if (path === 'api/branding') assert.equal(actual.body, await expected.text());
+    assert.ok(!actual.body.includes('You are offline'));
+  }
+  assert.deepEqual(await page.evaluate(() => caches.keys()), []);
+  const target = server.url + 'login?offline-test=1';
+  for (const scenario of [
+    { language: 'en', dir: 'ltr', title: 'You are offline', retry: 'Retry', width: 1280, height: 800, theme: 'light' },
+    {
+      language: 'de',
+      dir: 'ltr',
+      title: 'Du bist offline',
+      retry: 'Erneut versuchen',
+      width: 390,
+      height: 844,
+      theme: 'dark',
+    },
+    { language: 'ar', dir: 'rtl', title: 'أنت غير متصل بالإنترنت', width: 390, height: 844, theme: 'light' },
+  ]) {
+    // Test cookie precedence over the English browser locale, plus responsive themes and RTL.
+    await context.addCookies([{ name: 'registry-ui-language', value: scenario.language, url: server.url }]);
+    await page.setViewportSize({ width: scenario.width, height: scenario.height });
+    await page.emulateMedia({ colorScheme: scenario.theme });
+    await context.setOffline(true);
+    const response = await page.goto(target);
+    assert.equal(response.status(), 503);
+    await expect(page.locator('h1')).toHaveText(scenario.title);
+    await expect(page.locator('html')).toHaveAttribute('lang', scenario.language);
+    await expect(page.locator('html')).toHaveAttribute('dir', scenario.dir);
+    await expect(page.locator('.brand')).toHaveText('PWA Test Registry');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    assert.equal(
+      await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor),
+      scenario.theme === 'dark' ? 'rgb(24, 24, 27)' : 'rgb(250, 250, 250)',
+    );
+    const button = page.getByRole('button');
+    if (scenario.retry) await expect(button).toHaveText(scenario.retry);
+    await page.keyboard.press('Tab');
+    await expect(button).toBeFocused();
+    assert.equal(
+      await page.evaluate(async (url) => {
+        try {
+          await fetch(url);
+          return false;
+        } catch {
+          return true;
+        }
+      }, server.url + 'api/branding'),
+      true,
+    );
+    assert.deepEqual(await page.evaluate(() => caches.keys()), []);
+    if (base === '/' && !files) {
+      await mkdir('test-results/pwa', { recursive: true });
+      await page.screenshot({
+        path: `test-results/pwa/offline-${scenario.language}-${scenario.theme}.png`,
+        fullPage: true,
+      });
+    }
+    await context.setOffline(false);
+    await Promise.all([page.waitForNavigation(), page.keyboard.press('Enter')]);
+    assert.equal(page.url(), target);
+    await expect(page.locator('html')).toHaveAttribute('lang', scenario.language);
+    await expect(page.locator('#retry')).toHaveCount(0);
+  }
+  // The offline document must also work when starting a new tab under an existing worker scope.
+  await context.setOffline(true);
+  const freshPage = await context.newPage();
+  await freshPage.goto(target);
+  await expect(freshPage.locator('h1')).toHaveText('أنت غير متصل بالإنترنت');
+  await freshPage.close();
+  // Unsupported/malformed cookie falls back to the browser locale, without application bundles.
+  await context.addCookies([{ name: 'registry-ui-language', value: '%invalid', url: server.url }]);
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('h1')).toHaveText('You are offline');
+  await context.setOffline(false);
+}
 try {
   browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE });
   for (const base of ['/', '/registry/']) {
@@ -109,11 +214,17 @@ try {
       const detected = await cdp.send('Page.getAppManifest');
       assert.equal(detected.url, server.url + 'manifest.webmanifest');
       assert.deepEqual(detected.errors, []);
+      await verifyOffline(page, context, server, base, files);
+      console.log(`PWA verified: base=${base}, file overrides=${files}`);
       await context.close();
       server.child.kill();
       await server.closed;
     }
   }
+  await assert.rejects(
+    start('/', { NUXT_BRAND_PWA_ICON_512_FILE: join(root, 'private-192.png') }),
+    /Invalid NUXT_BRAND_PWA_ICON_512_FILE/,
+  );
   const external = await start('/registry/', {
     NUXT_PUBLIC_BRAND_PWA_ICON_192: 'https://example.test/icon-192.png',
     NUXT_PUBLIC_BRAND_PWA_ICON_512: 'https://example.test/icon-512.png',
@@ -124,7 +235,7 @@ try {
   external.child.kill();
   await external.closed;
   console.log(
-    'PWA integration passed: runtime manifest, base paths, default/file/URL icons, browser manifest discovery, Apple touch icon',
+    'PWA integration passed: runtime manifest, base paths, default/file/URL icons, browser manifest discovery, Apple touch icon, worker scope, API passthrough, offline start/retry, RTL, themes, responsive layout, empty Cache Storage',
   );
 } finally {
   await browser?.close();

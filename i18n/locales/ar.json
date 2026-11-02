@@ -230,5 +230,7 @@
   "deleteUser": "حذف المستخدم",
   "deleteUserConfirm": "هل تريد حذف المستخدم {username}؟ سيؤدي هذا إلى إزالة الحساب وصلاحيات الوصول إلى المستودعات نهائيًا.",
   "userDeleted": "تم حذف المستخدم.",
-  "userPasswordChanged": "تم تغيير كلمة المرور."
+  "userPasswordChanged": "تم تغيير كلمة المرور.",
+  "pwaOfflineTitle": "أنت غير متصل بالإنترنت",
+  "pwaOfflineDescription": "اتصل بالإنترنت، ثم حاول فتح سجل الحاويات مرة أخرى."
 }

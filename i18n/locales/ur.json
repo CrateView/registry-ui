@@ -230,5 +230,7 @@
   "deleteUser": "صارف حذف کریں",
   "deleteUserConfirm": "صارف {username} کو حذف کریں؟ اکاؤنٹ اور اس کی ریپوزٹری تک رسائی مستقل طور پر ختم ہو جائے گی۔",
   "userDeleted": "صارف حذف ہو گیا۔",
-  "userPasswordChanged": "پاس ورڈ تبدیل ہو گیا۔"
+  "userPasswordChanged": "پاس ورڈ تبدیل ہو گیا۔",
+  "pwaOfflineTitle": "آپ آف لائن ہیں",
+  "pwaOfflineDescription": "انٹرنیٹ سے جڑیں، پھر اپنی رجسٹری کھولنے کی دوبارہ کوشش کریں۔"
 }

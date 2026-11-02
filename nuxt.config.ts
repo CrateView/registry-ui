@@ -37,6 +37,7 @@ export default defineNuxtConfig({
     brandLogoLightFile: '',
     brandLogoDarkFile: '',
     brandFaviconFile: '',
+    // Keep numeric sizes separated in the public ENV contract (NUXT_BRAND_PWA_ICON_192_FILE).
     brandPwaIcon_192File: '',
     brandPwaIcon_512File: '',
     registryUpstream: 'http://127.0.0.1:5000',

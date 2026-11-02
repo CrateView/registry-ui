@@ -230,5 +230,7 @@
   "deleteUser": "उपयोगकर्ता हटाएँ",
   "deleteUserConfirm": "उपयोगकर्ता {username} हटाएँ? खाता और उसकी रिपॉज़िटरी पहुँच स्थायी रूप से हटा दी जाएगी।",
   "userDeleted": "उपयोगकर्ता हटा दिया गया।",
-  "userPasswordChanged": "पासवर्ड बदल दिया गया।"
+  "userPasswordChanged": "पासवर्ड बदल दिया गया।",
+  "pwaOfflineTitle": "आप ऑफ़लाइन हैं",
+  "pwaOfflineDescription": "इंटरनेट से कनेक्ट करें, फिर अपनी रजिस्ट्री खोलने के लिए दोबारा प्रयास करें।"
 }
