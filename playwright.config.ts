@@ -1,4 +1,5 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
+
 export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.spec.ts',
@@ -13,4 +14,4 @@ export default defineConfig({
     launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE },
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-})
+});

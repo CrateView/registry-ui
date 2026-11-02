@@ -1,20 +1,15 @@
-<script setup lang="ts">
-const { t } = useI18n()
-const config = useRuntimeConfig().public
-const website = computed(() => safeUrl(config.brandProductUrl))
-</script>
 <template>
   <div class="flex min-h-dvh flex-col bg-muted/35">
     <header class="flex items-center justify-between gap-4 px-5 py-5 sm:px-8 sm:py-6">
       <BrandMark />
       <UButton
         v-if="website"
-        :to="website"
         target="_blank"
         rel="noopener noreferrer"
         color="neutral"
         variant="ghost"
         trailing-icon="i-lucide-arrow-up-right"
+        :to="website"
         :label="t('visitWebsite')"
       />
     </header>
@@ -26,7 +21,15 @@ const website = computed(() => safeUrl(config.brandProductUrl))
         <LanguageSwitch />
         <ThemeToggle />
       </div>
-      <p class="max-w-lg text-xs text-muted">{{ config.brandDescription }}</p>
+      <p class="max-w-lg text-xs text-muted">
+        {{ config.brandDescription }}
+      </p>
     </footer>
   </div>
 </template>
+
+<script setup lang="ts">
+const { t } = useI18n();
+const config = useRuntimeConfig().public;
+const website = computed(() => safeUrl(config.brandProductUrl));
+</script>

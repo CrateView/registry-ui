@@ -44,6 +44,8 @@
     "deepmerge": "file:vendor/deepmerge",
     "eslint": "^10.14.0",
     "prettier": "^3.9.10",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "^6.0.3",
     "vitest": "^5.0.5",
     "vue-tsc": "^3.1.0"

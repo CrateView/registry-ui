@@ -1,89 +1,8 @@
-<script setup lang="ts">
-import { getLocale } from '#shared/locales'
-import type { DropdownMenuItem } from '@nuxt/ui'
-const { t, locale } = useI18n()
-const sidebarSide = computed(() =>
-  getLocale(locale.value).dir === 'rtl' ? ('right' as const) : ('left' as const),
-)
-const route = useRoute()
-const config = useRuntimeConfig().public
-const registry = useRegistry()
-const ready = ref(false)
-const failure = ref('')
-const { themeItems, languageItems } = useInterfacePreferences()
-const accountItems = computed<DropdownMenuItem[]>(() => [
-  { label: t('language'), icon: 'i-lucide-languages', children: languageItems.value },
-  { label: t('theme'), icon: 'i-lucide-palette', children: themeItems.value },
-  ...(registry.info.value?.userManagement
-    ? [{ label: t('account'), icon: 'i-lucide-user-round', to: '/account' }]
-    : []),
-  { type: 'separator' },
-  { label: t('signOut'), icon: 'i-lucide-log-out', color: 'error', onSelect: signOut },
-])
-const links = computed(() => [
-  { type: 'label' as const, label: t('workspace') },
-  ...(registry.info.value?.monitoringEnabled
-    ? [{ label: t('overview'), icon: 'i-lucide-layout-dashboard', to: '/home' }]
-    : []),
-  { label: t('explore'), icon: 'i-lucide-boxes', to: '/explore' },
-  { type: 'label' as const, label: t('administration') },
-  ...(registry.info.value?.canCreateUsers
-    ? [{ label: t('users'), icon: 'i-lucide-users', to: '/users' }]
-    : []),
-  { label: t('settings'), icon: 'i-lucide-settings', to: '/settings' },
-])
-const title = computed(() => {
-  if (route.path === '/login') return t('signIn')
-  if (route.path.startsWith('/image/'))
-    return [route.params.name, route.params.tag].filter(Boolean).join(' / ')
-  if (route.path === '/settings') return t('settings')
-  if (route.path === '/account') return t('account')
-  if (route.path === '/users') return t('users')
-  return route.path === '/explore' ? t('explore') : t('overview')
-})
-const external = computed(() =>
-  [
-    { label: t('documentation'), icon: 'i-lucide-book-open', to: safeUrl(config.brandDocsUrl) },
-    { label: 'GitHub', icon: 'i-lucide-github', to: safeUrl(config.brandRepositoryUrl) },
-  ]
-    .filter((link) => link.to)
-    .map((link) => ({
-      ...link,
-      target: '_blank',
-      rel: 'noopener noreferrer',
-      trailingIcon: 'i-lucide-arrow-up-right',
-    })),
-)
-const connected = computed(() => ready.value && !failure.value && !registry.info.value?.probeFailed)
-async function initialize() {
-  failure.value = ''
-  try {
-    await registry.initialize()
-    ready.value = true
-    if (registry.info.value?.auth && !registry.authenticated.value && route.path !== '/login')
-      await navigateTo('/login')
-  } catch (error) {
-    failure.value = String(error)
-  }
-}
-onMounted(initialize)
-async function signOut() {
-  try {
-    await registry.logout()
-  } catch {
-    failure.value = t('logoutFailed')
-  }
-}
-</script>
 <template>
-  <UDashboardGroup
-    unit="rem"
-    storage="local"
-    storage-key="crateview-dashboard"
-    class="text-default"
-  >
+  <UDashboardGroup unit="rem" storage="local" storage-key="crateview-dashboard" class="text-default">
     <UDashboardSidebar
       id="registry"
+      class="bg-default"
       :side="sidebarSide"
       :menu="{ side: sidebarSide }"
       collapsible
@@ -92,7 +11,6 @@ async function signOut() {
       :min-size="14"
       :max-size="22"
       :collapsed-size="4"
-      class="bg-default"
       :ui="{ footer: 'border-t border-default' }"
     >
       <template #toggle>
@@ -104,19 +22,19 @@ async function signOut() {
       <template #default="{ collapsed }">
         <SearchBox v-if="ready && route.path !== '/login'" :collapsed="collapsed" />
         <UNavigationMenu
+          orientation="vertical"
           :items="links"
           :collapsed="collapsed"
-          orientation="vertical"
           :aria-label="t('navigation')"
           tooltip
           popover
         />
         <UNavigationMenu
+          orientation="vertical"
+          class="mt-auto"
           :items="external"
           :external-icon="false"
           :collapsed="collapsed"
-          orientation="vertical"
-          class="mt-auto"
           tooltip
         />
       </template>
@@ -137,13 +55,10 @@ async function signOut() {
         >
           <div
             class="flex items-center gap-2 text-xs font-medium"
-            :class="connected ? 'text-success' : 'text-error'"
             role="status"
+            :class="connected ? 'text-success' : 'text-error'"
           >
-            <span
-              class="size-1.5 shrink-0 rounded-full"
-              :class="connected ? 'bg-success' : 'bg-error'"
-            />
+            <span class="size-1.5 shrink-0 rounded-full" :class="connected ? 'bg-success' : 'bg-error'" />
             {{ connected ? t('health') : t('connectionFailed') }}
           </div>
           <VersionChangelog />
@@ -154,9 +69,9 @@ async function signOut() {
     <UDashboardPanel id="content" class="bg-muted/35" :ui="{ body: 'p-0 sm:p-0 gap-0' }">
       <template #header>
         <UDashboardNavbar
+          class="bg-default/95 backdrop-blur-sm"
           :title="title"
           :as="{ title: 'p' }"
-          class="bg-default/95 backdrop-blur-sm"
           :ui="{ right: 'gap-3' }"
         >
           <template #toggle>
@@ -185,49 +100,119 @@ async function signOut() {
                 :aria-label="t('account')"
               />
               <template #item-leading="{ item }">
-                <span
-                  v-if="item.flag"
-                  aria-hidden="true"
-                  class="inline-flex size-5 items-center justify-center"
-                  >{{ item.flag }}</span
-                >
+                <span v-if="item.flag" aria-hidden="true" class="inline-flex size-5 items-center justify-center">
+                  {{ item.flag }}
+                </span>
                 <UIcon
                   v-else-if="item.icon"
-                  :name="item.icon"
                   class="size-4 shrink-0"
+                  :name="item.icon"
                   :class="item.color === 'error' ? 'text-error' : 'text-muted'"
                 />
               </template>
             </UDropdownMenu>
-            <UButton
-              v-else-if="registry.info.value?.auth && route.path !== '/login'"
-              to="/login"
-              size="sm"
-              >{{ t('signIn') }}</UButton
-            >
+            <UButton v-else-if="registry.info.value?.auth && route.path !== '/login'" to="/login" size="sm">
+              {{ t('signIn') }}
+            </UButton>
           </template>
         </UDashboardNavbar>
         <UDashboardToolbar class="bg-default">
-          <template #left><PageBreadcrumbs /></template>
+          <template #left>
+            <PageBreadcrumbs />
+          </template>
         </UDashboardToolbar>
       </template>
       <template #body>
-        <main class="flex-1 min-w-0">
+        <main class="min-w-0 flex-1">
           <div v-if="failure" class="page">
-            <UAlert
-              color="error"
-              icon="i-lucide-circle-alert"
-              :title="t('connectionFailed')"
-              :description="failure"
-            /><UButton class="mt-4" @click="initialize">{{ t('retry') }}</UButton>
+            <UAlert color="error" icon="i-lucide-circle-alert" :title="t('connectionFailed')" :description="failure" />
+            <UButton class="mt-4" @click="initialize">
+              {{ t('retry') }}
+            </UButton>
           </div>
           <slot v-else-if="ready" />
-          <div v-else class="page text-muted" role="status">{{ t('loading') }}</div>
+          <div v-else class="page text-muted" role="status">
+            {{ t('loading') }}
+          </div>
         </main>
         <footer class="px-6 py-4 text-xs text-dimmed">
-          {{ config.brandName }} · OCI Distribution
+          {{ `${config.brandName} · OCI Distribution` }}
         </footer>
       </template>
     </UDashboardPanel>
   </UDashboardGroup>
 </template>
+
+<script setup lang="ts">
+import { getLocale } from '#shared/locales';
+import type { DropdownMenuItem } from '@nuxt/ui';
+
+const { t, locale } = useI18n();
+const sidebarSide = computed(() => (getLocale(locale.value).dir === 'rtl' ? ('right' as const) : ('left' as const)));
+const route = useRoute();
+const config = useRuntimeConfig().public;
+const registry = useRegistry();
+const ready = ref(false);
+const failure = ref('');
+const { themeItems, languageItems } = useInterfacePreferences();
+const accountItems = computed<DropdownMenuItem[]>(() => [
+  { label: t('language'), icon: 'i-lucide-languages', children: languageItems.value },
+  { label: t('theme'), icon: 'i-lucide-palette', children: themeItems.value },
+  ...(registry.info.value?.userManagement
+    ? [{ label: t('account'), icon: 'i-lucide-user-round', to: '/account' }]
+    : []),
+  { type: 'separator' },
+  { label: t('signOut'), icon: 'i-lucide-log-out', color: 'error', onSelect: signOut },
+]);
+const links = computed(() => [
+  { type: 'label' as const, label: t('workspace') },
+  ...(registry.info.value?.monitoringEnabled
+    ? [{ label: t('overview'), icon: 'i-lucide-layout-dashboard', to: '/home' }]
+    : []),
+  { label: t('explore'), icon: 'i-lucide-boxes', to: '/explore' },
+  { type: 'label' as const, label: t('administration') },
+  ...(registry.info.value?.canCreateUsers ? [{ label: t('users'), icon: 'i-lucide-users', to: '/users' }] : []),
+  { label: t('settings'), icon: 'i-lucide-settings', to: '/settings' },
+]);
+const title = computed(() => {
+  if (route.path === '/login') return t('signIn');
+  if (route.path.startsWith('/image/')) return [route.params.name, route.params.tag].filter(Boolean).join(' / ');
+  if (route.path === '/settings') return t('settings');
+  if (route.path === '/account') return t('account');
+  if (route.path === '/users') return t('users');
+  return route.path === '/explore' ? t('explore') : t('overview');
+});
+const external = computed(() =>
+  [
+    { label: t('documentation'), icon: 'i-lucide-book-open', to: safeUrl(config.brandDocsUrl) },
+    { label: 'GitHub', icon: 'i-lucide-github', to: safeUrl(config.brandRepositoryUrl) },
+  ]
+    .filter((link) => link.to)
+    .map((link) => ({
+      ...link,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      trailingIcon: 'i-lucide-arrow-up-right',
+    })),
+);
+const connected = computed(() => ready.value && !failure.value && !registry.info.value?.probeFailed);
+async function initialize() {
+  failure.value = '';
+  try {
+    await registry.initialize();
+    ready.value = true;
+    if (registry.info.value?.auth && !registry.authenticated.value && route.path !== '/login')
+      await navigateTo('/login');
+  } catch (error) {
+    failure.value = String(error);
+  }
+}
+onMounted(initialize);
+async function signOut() {
+  try {
+    await registry.logout();
+  } catch {
+    failure.value = t('logoutFailed');
+  }
+}
+</script>

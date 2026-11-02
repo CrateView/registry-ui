@@ -298,3 +298,7 @@ languages initially use machine translation and have not received native-speaker
 review. Update all dictionaries when adding messages; tests enforce coverage and
 placeholder parity. Application request errors are localized at the UI boundary;
 API responses retain their existing protocol. No runtime translation service is used.
+
+## Coding conventions
+
+See [coding guidelines](docs/coding-guidelines.md) for formatting, Vue component patterns, and verification commands.

@@ -15,7 +15,7 @@ export function requestErrorKey(status: number, message: string): string {
     'Invalid username': 'loginUsernameInvalid',
     'Current password required': 'fieldRequired',
     'Password must have at least 12 characters and at most 72 UTF-8 bytes': 'passwordRequirements',
-  }
+  };
   return (
     known[message] ||
     (
@@ -29,8 +29,6 @@ export function requestErrorKey(status: number, message: string): string {
         429: 'tooManyRequests',
       } as Record<number, string>
     )[status] ||
-    (message.includes('Account') || message.includes('account')
-      ? 'accountServiceUnavailable'
-      : 'registryRequestFailed')
-  )
+    (message.includes('Account') || message.includes('account') ? 'accountServiceUnavailable' : 'registryRequestFailed')
+  );
 }

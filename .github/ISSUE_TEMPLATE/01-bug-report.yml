@@ -6,8 +6,7 @@ labels:
 body:
   - type: markdown
     attributes:
-      value:
-        Search existing issues before submitting. English and German reports are welcome. Remove
+      value: Search existing issues before submitting. English and German reports are welcome. Remove
         passwords, tokens, cookies, private registry names and sensitive image contents from logs
         and screenshots. Report vulnerabilities privately using the security link in the issue
         chooser.
@@ -15,8 +14,7 @@ body:
     id: version
     attributes:
       label: Version or commit
-      description:
-        Include the affected release, image tag or commit SHA. For unreleased builds, include
+      description: Include the affected release, image tag or commit SHA. For unreleased builds, include
         the exact commit.
     validations:
       required: true

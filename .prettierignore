@@ -2,10 +2,9 @@
 .output
 .dev
 node_modules
-package-lock.json
+**/package-lock.json
 test-results
 playwright-report
 coverage
-
-vendor/deepmerge/index.cjs
-vendor/deepmerge/license.txt
+vendor
+public/dependency-licenses.json

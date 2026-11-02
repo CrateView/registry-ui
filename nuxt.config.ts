@@ -1,5 +1,5 @@
-import { supportedLocales } from './shared/locales'
-import { version } from './package.json'
+import { version } from './package.json';
+import { supportedLocales } from './shared/locales';
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-11-01',
@@ -72,4 +72,4 @@ export default defineNuxtConfig({
   },
   typescript: { strict: true },
   eslint: { config: { stylistic: false } },
-})
+});

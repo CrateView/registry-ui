@@ -1,24 +1,22 @@
-import { repositoryQuerySchema } from '../../../shared/validation'
-import { validated } from '../../utils/validation'
-import { paginatedList, repositoryPath, mapLimit, readImage } from '../../utils/registry'
+import { repositoryQuerySchema } from '../../../shared/validation';
+import { mapLimit, paginatedList, readImage, repositoryPath } from '../../utils/registry';
+import { validated } from '../../utils/validation';
+
 export default defineEventHandler(async (event) => {
-  const { name, summary } = validated(repositoryQuerySchema, getQuery(event))
-  const tags = await paginatedList(event, `/v2/${repositoryPath(name)}/tags/list`, 'tags')
-  const summaryOnly = summary === 'true'
+  const { name, summary } = validated(repositoryQuerySchema, getQuery(event));
+  const tags = await paginatedList(event, `/v2/${repositoryPath(name)}/tags/list`, 'tags');
+  const summaryOnly = summary === 'true';
   const selected = summaryOnly
-    ? [tags.includes('latest') ? 'latest' : tags.toSorted()[0]].filter(
-        (tag): tag is string => !!tag,
-      )
-    : tags
-  const images = await mapLimit(selected, (tag) => readImage(event, name, tag))
+    ? [tags.includes('latest') ? 'latest' : tags.toSorted()[0]].filter((tag): tag is string => !!tag)
+    : tags;
+  const images = await mapLimit(selected, (tag) => readImage(event, name, tag));
   const unique = new Map(
     images.flatMap((image) =>
       image.Manifests.map(
-        (manifest) =>
-          [`${manifest.Platform.Os}/${manifest.Platform.Arch}`, manifest.Platform] as const,
+        (manifest) => [`${manifest.Platform.Os}/${manifest.Platform.Arch}`, manifest.Platform] as const,
       ),
     ),
-  )
+  );
   return {
     Summary: {
       Name: name,
@@ -33,5 +31,5 @@ export default defineEventHandler(async (event) => {
       ),
     },
     Images: images,
-  }
-})
+  };
+});
