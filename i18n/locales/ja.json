@@ -230,5 +230,7 @@
   "deleteUser": "ユーザーを削除",
   "deleteUserConfirm": "ユーザー {username} を削除しますか？アカウントとリポジトリへのアクセス権が完全に削除されます。",
   "userDeleted": "ユーザーを削除しました。",
-  "userPasswordChanged": "パスワードを変更しました。"
+  "userPasswordChanged": "パスワードを変更しました。",
+  "pwaOfflineTitle": "オフラインです",
+  "pwaOfflineDescription": "インターネットに接続してから、レジストリをもう一度開いてください。"
 }

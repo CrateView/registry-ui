@@ -230,5 +230,7 @@
   "deleteUser": "Eliminar usuario",
   "deleteUserConfirm": "¿Eliminar al usuario {username}? Se eliminarán permanentemente la cuenta y su acceso a los repositorios.",
   "userDeleted": "Usuario eliminado.",
-  "userPasswordChanged": "Contraseña cambiada."
+  "userPasswordChanged": "Contraseña cambiada.",
+  "pwaOfflineTitle": "No tienes conexión",
+  "pwaOfflineDescription": "Conéctate a internet y vuelve a intentar abrir tu registro."
 }

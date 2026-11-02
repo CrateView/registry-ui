@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import { getLocale } from '#shared/locales';
+import { pwaAssetUrl } from '#shared/pwa';
 import { getUiLocale } from '~/utils/locales';
 
 const runtimeConfig = useRuntimeConfig();
@@ -20,10 +21,18 @@ useHead(() => ({
   htmlAttrs: { lang: locale.value, dir: getLocale(locale.value).dir },
   titleTemplate: (title) =>
     (config.brandTitleTemplate || `%s · ${config.brandName}`).replaceAll('%s', title || config.brandName),
-  meta: [{ name: 'description', content: config.brandDescription || t('overviewHint') }],
+  meta: [
+    { name: 'description', content: config.brandDescription || t('overviewHint') },
+    { name: 'theme-color', content: '#18181b' },
+    { name: 'apple-mobile-web-app-title', content: config.brandName },
+  ],
   link: [
     { rel: 'icon', href: safeUrl(branding.value.favicon) || '/favicon.ico' },
-    { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+    { rel: 'manifest', href: `${runtimeConfig.app.baseURL.replace(/\/$/, '')}/manifest.webmanifest` },
+    {
+      rel: 'apple-touch-icon',
+      href: pwaAssetUrl(safeUrl(branding.value.pwaIcon192) || '/branding/pwa-192.png', runtimeConfig.app.baseURL),
+    },
   ],
 }));
 </script>

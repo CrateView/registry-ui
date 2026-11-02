@@ -23,7 +23,8 @@
     "test:auth": "npm --prefix auth test",
     "test:auth:integration": "node tests/accounts-integration.mjs",
     "test:auth:browser": "node tests/accounts-integration.mjs --browser",
-    "test:branding:integration": "node tests/branding-integration.mjs"
+    "test:branding:integration": "node tests/branding-integration.mjs",
+    "test:pwa:integration": "node tests/pwa-integration.mjs"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.0",

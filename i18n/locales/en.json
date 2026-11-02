@@ -230,5 +230,7 @@
   "deleteUser": "Delete user",
   "deleteUserConfirm": "Delete user {username}? This permanently removes the account and its repository access.",
   "userDeleted": "User deleted.",
-  "userPasswordChanged": "Password changed."
+  "userPasswordChanged": "Password changed.",
+  "pwaOfflineTitle": "You are offline",
+  "pwaOfflineDescription": "Connect to the internet, then try again to open your registry."
 }

@@ -101,6 +101,38 @@ For a standalone frontend, set `NUXT_REGISTRY_UPSTREAM` to your existing registr
 
 Metadata is loaded on demand, with bounded parallelism per request. Name search loads the full paginated catalog; platform metadata is derived for visible repositories rather than pretending there is a server-side metadata search index. Large tag lists can require many requests to obtain sortable creation dates.
 
+## Install as an app (PWA)
+
+Supported browsers can install Crateview using their native install or Add to Home
+Screen action. The app opens in standalone mode. Use HTTPS in production;
+localhost is supported for local testing. Browser installation UI varies. After one successful online visit and service-worker
+installation, opening or reloading the app offline shows a localized connection
+message with a retry button. Retry reloads the original URL after connectivity
+returns. Language follows the saved language choice, then browser preferences,
+with English fallback; Arabic and Urdu use RTL.
+
+The worker only handles app document navigations. Registry/account API requests
+and `/v2/` traffic are never cached or replaced with HTML. No responses are saved
+to Cache Storage, and there is no offline registry browsing. Existing open screens
+keep their usual request-error handling. Service workers are disabled during
+`npm run dev`; use a production build to test this behavior. Worker updates follow
+the browser lifecycle without forcing open tabs to reload.
+
+The install name and description follow `NUXT_PUBLIC_BRAND_NAME` and
+`NUXT_PUBLIC_BRAND_DESCRIPTION`. The manifest and icons respect `NUXT_APP_BASE_URL`,
+including deployments such as `/registry/`. Local icon URLs are resolved beneath
+that base; external HTTP(S) URLs are preserved.
+
+Configure `NUXT_PUBLIC_BRAND_PWA_ICON_192` and `NUXT_PUBLIC_BRAND_PWA_ICON_512`
+with URLs to square PNG icons of exactly 192 and 512 pixels. Defaults use the
+Crateview mark. Alternatively, `NUXT_BRAND_PWA_ICON_192_FILE` and
+`NUXT_BRAND_PWA_ICON_512_FILE` serve private local PNG files, overriding the URLs.
+Relative file paths resolve against the server working directory; restart after
+changes. Invalid or incorrectly sized local PNGs prevent startup. Private paths
+are never included in the manifest or branding response. The 192-pixel icon also
+serves as the Apple touch icon. Existing installations may refresh branding only
+when their browser updates installed app metadata.
+
 ## Authentication and deletion
 
 Basic credentials are validated against `/v2/`; managed token mode validates them through the independent account service. The server stores them only in an encrypted, HttpOnly, SameSite=Strict session cookie, never localStorage. Session lifetime is eight hours. HTTPS enables the Secure cookie flag. Set a cryptographically random `NUXT_SESSION_PASSWORD` (at least 32 characters) for stable production sessions:

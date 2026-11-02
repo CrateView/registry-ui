@@ -230,5 +230,7 @@
   "deleteUser": "Excluir usuário",
   "deleteUserConfirm": "Excluir o usuário {username}? A conta e seu acesso aos repositórios serão removidos permanentemente.",
   "userDeleted": "Usuário excluído.",
-  "userPasswordChanged": "Senha alterada."
+  "userPasswordChanged": "Senha alterada.",
+  "pwaOfflineTitle": "Você está offline",
+  "pwaOfflineDescription": "Conecte-se à internet e tente abrir seu registro novamente."
 }

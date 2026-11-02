@@ -9,6 +9,8 @@ export function useBranding() {
         logoLight: config.brandLogoLight,
         logoDark: config.brandLogoDark,
         favicon: config.brandFavicon,
+        pwaIcon192: config.brandPwaIcon_192,
+        pwaIcon512: config.brandPwaIcon_512,
       },
   );
 }

@@ -230,5 +230,7 @@
   "deleteUser": "Hapus pengguna",
   "deleteUserConfirm": "Hapus pengguna {username}? Akun dan akses repositorinya akan dihapus secara permanen.",
   "userDeleted": "Pengguna dihapus.",
-  "userPasswordChanged": "Kata sandi diubah."
+  "userPasswordChanged": "Kata sandi diubah.",
+  "pwaOfflineTitle": "Anda sedang offline",
+  "pwaOfflineDescription": "Hubungkan ke internet, lalu coba buka registri Anda lagi."
 }

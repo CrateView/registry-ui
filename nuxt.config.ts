@@ -37,6 +37,9 @@ export default defineNuxtConfig({
     brandLogoLightFile: '',
     brandLogoDarkFile: '',
     brandFaviconFile: '',
+    // Keep numeric sizes separated in the public ENV contract (NUXT_BRAND_PWA_ICON_192_FILE).
+    brandPwaIcon_192File: '',
+    brandPwaIcon_512File: '',
     registryUpstream: 'http://127.0.0.1:5000',
     registryDeleteEnabled: false,
     sessionPassword: '',
@@ -61,6 +64,8 @@ export default defineNuxtConfig({
       brandLogoLight: '/branding/crateview-mark-256.png',
       brandLogoDark: '/branding/crateview-mark-256.png',
       brandFavicon: '/favicon.ico',
+      brandPwaIcon_192: '/branding/pwa-192.png',
+      brandPwaIcon_512: '/branding/pwa-512.png',
       brandTitleTemplate: '',
       brandProductUrl: 'https://crateview.de',
       brandDocsUrl: 'https://github.com/crateview/registry-ui#readme',

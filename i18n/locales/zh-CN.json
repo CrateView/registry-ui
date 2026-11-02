@@ -230,5 +230,7 @@
   "deleteUser": "删除用户",
   "deleteUserConfirm": "确定删除用户 {username}？此操作将永久删除该账户及其仓库访问权限。",
   "userDeleted": "用户已删除。",
-  "userPasswordChanged": "密码已更改。"
+  "userPasswordChanged": "密码已更改。",
+  "pwaOfflineTitle": "你已离线",
+  "pwaOfflineDescription": "请连接互联网，然后重试打开镜像仓库。"
 }
