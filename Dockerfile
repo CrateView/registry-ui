@@ -1,4 +1,4 @@
-FROM node:24.22.2-alpine AS build
+FROM node:26.13.0-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY vendor ./vendor
@@ -6,7 +6,7 @@ RUN npm ci --ignore-scripts
 COPY . .
 RUN node scripts/patch-import-x.mjs && npx nuxt prepare && npm run build
 
-FROM node:24.22.2-alpine
+FROM node:26.13.0-alpine
 WORKDIR /app
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
 COPY --from=build --chown=node:node /app/.output ./.output
