@@ -1,0 +1,23 @@
+# docker compose -f compose.yaml -f compose.auth.integrated.yaml ...
+# Bootstrap accounts with the frontend CLI before starting Distribution.
+services:
+  registry:
+    ports:
+      - '127.0.0.1:5000:5000'
+    environment:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+    volumes:
+      - auth-data:/auth:ro
+  frontend:
+    environment:
+      NUXT_AUTH_MODE: htpasswd
+      NUXT_AUTH_DATA_DIR: /app/auth-data
+      NUXT_AUTH_SERVICE_URL: ''
+      NUXT_AUTH_SERVICE_SECRET: ''
+      NUXT_USER_CREATION_ALLOWED_USERS: ${NUXT_USER_CREATION_ALLOWED_USERS:-}
+    volumes:
+      - auth-data:/app/auth-data
+volumes:
+  auth-data:

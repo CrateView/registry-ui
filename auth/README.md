@@ -1,9 +1,70 @@
-# Independent account service
+# Account management
 
 Docker talks directly to Distribution. The UI is an optional management client;
 stopping its container does not affect Docker authentication or authorization.
 Account data is stored in `htpasswd` (bcrypt hashes), with token grants in
 `permissions.json`. There is no account database or SQLite dependency.
+
+## Integrated htpasswd deployment (recommended)
+
+Crateview can manage accounts directly in its Nuxt/Nitro backend. No separate
+container, process, internal HTTP endpoint, or management secret is required.
+Distribution continues to validate Docker credentials directly against `htpasswd`;
+Docker login, push and pull continue while Crateview is stopped.
+
+Set a stable `NUXT_SESSION_PASSWORD` and `NUXT_USER_CREATION_ALLOWED_USERS=admin`
+in `.env`. The integrated overlay configures `NUXT_AUTH_MODE=htpasswd` and
+`NUXT_AUTH_DATA_DIR=/app/auth-data`; leave the service URL and secret empty.
+A data directory combined with an external service setting, `token`, or `off`
+is rejected explicitly. Without a data directory, existing external deployments
+keep their previous behavior. Account management remains disabled by default.
+
+Build the current image, then bootstrap **before starting Distribution** (which
+otherwise creates a default account when `htpasswd` is missing). Bash example:
+
+```sh
+docker compose -f compose.yaml -f compose.build.yaml -f compose.auth.integrated.yaml build frontend
+read -rs -p 'Initial admin password: ' ACCOUNT_PASSWORD; echo
+printf '%s' "$ACCOUNT_PASSWORD" | docker compose -f compose.yaml -f compose.build.yaml -f compose.auth.integrated.yaml run --rm -T --no-deps frontend node /app/auth/src/cli.mjs add admin
+unset ACCOUNT_PASSWORD
+docker compose -f compose.yaml -f compose.build.yaml -f compose.auth.integrated.yaml up -d
+```
+
+The one-off CLI container exits immediately; only Crateview and Distribution stay
+running. The CLI also supports the commands below using the `frontend` service.
+It reads `AUTH_DATA_DIR` when explicitly set, otherwise `NUXT_AUTH_DATA_DIR`.
+Passwords must arrive through stdin, never command arguments. There is no default
+admin password or public bootstrap endpoint.
+
+The named volume is initialized from `/app/auth-data`, owned by the image's
+unprivileged Node user (UID/GID 1000). For bind mounts, provision that ownership
+before startup; the directory must be writable and searchable by UID 1000.
+Account files default to 0600 and new directories to 0700. Distribution must be
+able to read the files; its supplied image runs as root. Mount the **directory**,
+not an individual file, so atomic replacements remain visible. Malformed or
+inaccessible storage rejects account operations without silently replacing files
+or exposing filesystem errors. Keep one running account writer; the CLI shares
+its lock and may be used for recovery or bootstrap.
+
+### Migrate an existing external htpasswd deployment
+
+1. Back up the complete account directory (`htpasswd` and `permissions.json` when
+   present) and Compose/ENV configuration. Stop the external auth writer.
+2. Reuse that directory unchanged: mount it at `/app/auth-data` read-write in
+   Crateview and `/auth` read-only in Distribution. Preserve hashes and account
+   names; do not bootstrap an existing store. Arrange UID 1000 access as above.
+3. Set `NUXT_AUTH_MODE=htpasswd`, `NUXT_AUTH_DATA_DIR=/app/auth-data`, remove the
+   service URL/secret, and remove the auth service and its `depends_on` reference.
+   Keep Distribution's existing htpasswd configuration and directory mount.
+4. Start Crateview. Verify account listing, password changes and direct Docker
+   login; stop Crateview temporarily to verify independent registry access.
+
+The supplied `auth-data` named volume can be reused by keeping the Compose
+project name unchanged. Do not combine the integrated and external auth overlays.
+For rollback, stop Crateview before changing writers, clear `NUXT_AUTH_DATA_DIR`,
+restore the service URL/secret and external service configuration, and point it
+at the same account directory. No data conversion is needed. Token deployments
+continue to use the separate service and the token overlay below.
 
 ## Modes
 
@@ -17,7 +78,7 @@ Account data is stored in `htpasswd` (bcrypt hashes), with token grants in
 Existing anonymous/basic deployments stay unchanged unless `NUXT_AUTH_MODE` is
 explicitly enabled. Arbitrary external Bearer services and OIDC are not supported.
 
-## Basic deployment
+## External Basic deployment
 
 From the repository root, copy `.env.example` to `.env`. Generate a secret with
 `openssl rand -base64 32`, set `AUTH_MANAGEMENT_SECRET`, and choose permitted
@@ -102,6 +163,7 @@ UI server settings (the overlays supply these except the administrator policy):
 | ENV                                | Meaning                                                                |
 | ---------------------------------- | ---------------------------------------------------------------------- |
 | `NUXT_AUTH_MODE`                   | `off` (default), `htpasswd` or `token`                                 |
+| `NUXT_AUTH_DATA_DIR`               | Private writable account directory; integrated htpasswd only           |
 | `NUXT_AUTH_SERVICE_URL`            | Internal service origin, e.g. `http://auth:8080`                       |
 | `NUXT_AUTH_SERVICE_SECRET`         | Same value as `AUTH_MANAGEMENT_SECRET`; server-only                    |
 | `NUXT_AUTH_TOKEN_REALM`            | Exact public `/token` URL in the registry Bearer challenge             |
@@ -184,6 +246,9 @@ npm ci --prefix auth
 npm run test:auth
 npm run build
 npm run test:auth:integration
+# Verify the production image, bootstrap and real Docker push/pull:
+docker build -t crateview-accounts:test .
+npm run test:auth:image -- crateview-accounts:test
 # Optional: requires Playwright Chromium (npx playwright install chromium).
 npm run test:auth:browser
 # Actual Docker CLI login in an isolated docker:29-cli container:

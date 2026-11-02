@@ -1,4 +1,6 @@
-import { getRequestHeader, type H3Event } from 'h3';
+import { createError, getRequestHeader, getRequestIP, type H3Event } from 'h3';
+import { createAccountService } from '../../auth/src/accounts.mjs';
+import { Failure } from '../../auth/src/store.mjs';
 import { registrySession, upstreamOrigin } from './registry';
 
 export interface AccountIdentity {
@@ -6,8 +8,36 @@ export interface AccountIdentity {
   mode: 'htpasswd' | 'token';
   globalRead: boolean;
 }
+interface AccountConfiguration {
+  authMode: string;
+  authDataDir: string;
+  authServiceUrl: string;
+  authServiceSecret: string;
+}
+/** Select one backend explicitly; existing external deployments retain their configuration. */
+export function accountBackend(config: AccountConfiguration): 'integrated' | 'external' | 'off' {
+  if (config.authDataDir) {
+    if (config.authMode !== 'htpasswd' || config.authServiceUrl || config.authServiceSecret)
+      throw createError({ statusCode: 500, statusMessage: 'Conflicting account backend configuration' });
+    return 'integrated';
+  }
+  return config.authMode !== 'off' && config.authServiceUrl && config.authServiceSecret ? 'external' : 'off';
+}
+const localServices = new Map<string, ReturnType<typeof createAccountService>>();
+function integratedService(directory: string) {
+  let service = localServices.get(directory);
+  if (!service) {
+    service = createAccountService({ mode: 'htpasswd', directory });
+    localServices.set(directory, service);
+    // A transient storage failure must not permanently poison this process's initialization cache.
+    void service.catch(() => localServices.delete(directory));
+  }
+  return service;
+}
 export function accountMode(event: H3Event) {
-  const mode = useRuntimeConfig(event).authMode;
+  const config = useRuntimeConfig(event);
+  accountBackend(config);
+  const mode = config.authMode;
   return mode === 'htpasswd' || mode === 'token' ? mode : 'off';
 }
 export function canCreateUser(allowed: string, username: string) {
@@ -21,7 +51,7 @@ export function canCreateUser(allowed: string, username: string) {
 }
 export function managedChallenge(event: H3Event, challenge: string) {
   const config = useRuntimeConfig(event);
-  if (!config.authServiceUrl || !config.authServiceSecret) return false;
+  if (accountBackend(config) === 'off') return false;
   if (accountMode(event) === 'htpasswd') return /^Basic\s/i.test(challenge);
   if (accountMode(event) !== 'token' || !config.authTokenRealm || !/^Bearer\s/i.test(challenge)) return false;
   return /\brealm="([^"]+)"/i.exec(challenge)?.[1] === config.authTokenRealm;
@@ -45,8 +75,26 @@ export async function accountRequest<T>(
   authorization?: string,
 ): Promise<T> {
   const config = useRuntimeConfig(event);
-  if (accountMode(event) === 'off' || !config.authServiceUrl || !config.authServiceSecret)
+  const backend = accountBackend(config);
+  if (accountMode(event) === 'off' || backend === 'off')
     throw createError({ statusCode: 404, statusMessage: 'User management disabled' });
+  const credentials = authorization ?? (await registrySession(event)).data.authorization;
+  if (!credentials) throw createError({ statusCode: 401, statusMessage: 'Sign-in required' });
+  if (backend === 'integrated') {
+    try {
+      const service = await integratedService(config.authDataDir);
+      return (await service.limit(getRequestIP(event) || 'unknown', () =>
+        service.request('/internal/' + path, { ...body, authorization: credentials }),
+      )) as T;
+    } catch (error) {
+      const statusCode = error instanceof Failure ? error.status : 503;
+      if (statusCode === 401) await (await registrySession(event)).clear();
+      throw createError({
+        statusCode,
+        statusMessage: error instanceof Failure ? error.message : 'Account service unavailable',
+      });
+    }
+  }
   const url = new URL(config.authServiceUrl);
   if (
     !['http:', 'https:'].includes(url.protocol) ||
@@ -57,8 +105,6 @@ export async function accountRequest<T>(
     url.hash
   )
     throw createError({ statusCode: 500, statusMessage: 'Invalid account service URL' });
-  const credentials = authorization ?? (await registrySession(event)).data.authorization;
-  if (!credentials) throw createError({ statusCode: 401, statusMessage: 'Sign-in required' });
   let response: Response;
   try {
     response = await fetch(url.origin + '/internal/' + path, {

@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: false },
   vite: { server: { allowedHosts: ['host.docker.internal'] } },
-  nitro: { externals: { inline: [/\/auth\/src\/schemas\.mjs$/] } },
+  nitro: { externals: { inline: [/\/auth\/src\/.*\.mjs$/] } },
   ui: { fonts: false },
   colorMode: {
     preference: 'system',
@@ -44,6 +44,7 @@ export default defineNuxtConfig({
     registryDeleteEnabled: false,
     sessionPassword: '',
     authMode: 'off',
+    authDataDir: '',
     authServiceUrl: '',
     authServiceSecret: '',
     authTokenRealm: '',
