@@ -14,7 +14,7 @@ export function validateReceipt(receipt, tag, registryRevision) {
     throw new Error('Conflicting documentation promotion receipt')
   return receipt
 }
-export async function requestPromotion(tag) {
+export async function requestPromotion(tag, { persistOnly = false } = {}) {
   if (!/^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(tag))
     throw new Error('Expected stable release tag')
   const gh = (args) => execFileSync('gh', args, { encoding: 'utf8' }).trim()
@@ -41,6 +41,7 @@ export async function requestPromotion(tag) {
       await writeFile(file, JSON.stringify(receipt, null, 2) + '\n')
       gh(['release', 'upload', tag, file]) // Never clobber a pinned request on retry.
     }
+    if (persistOnly) return
     const response = await fetch(
       'https://api.github.com/repos/crateview/website/actions/workflows/promote-docs.yml/dispatches',
       {
@@ -63,4 +64,4 @@ export async function requestPromotion(tag) {
   }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
-  await requestPromotion(process.argv[2])
+  await requestPromotion(process.argv[2], { persistOnly: process.argv.includes('--persist') })
