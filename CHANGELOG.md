@@ -1,5 +1,18 @@
 # @crateview/registry-ui
 
+## 0.6.0
+
+### Minor Changes
+
+- c2d2153: Allow account administrators to reset other users' passwords and delete accounts with confirmation. Add right-aligned user action menus, link own-password changes to Account, and match the Explore table styling. Preserve token grants on password resets and remove them on deletion.
+- 9954f9c: Add installable PWA support with runtime-branded icons and a localized offline-start fallback, without caching registry or account responses.
+
+### Patch Changes
+
+- c2d2153: Standardize code formatting and Vue component conventions using the CRM tenant-web guidelines. Enforce template, script, and style block order, organize imports and Tailwind classes, and preserve dependency license text exactly when displaying it.
+- 2455ffe: Request automatic versioned documentation promotion after publishing a stable release, retaining immutable source inputs for retries.
+- 84838b6: Serve branding logos and favicons from configured server files at runtime, including read-only Docker mounts, while preserving existing URL settings and keeping filesystem paths private.
+
 ## 0.5.1
 
 ### Patch Changes
