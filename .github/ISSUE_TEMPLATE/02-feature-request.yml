@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest a new capability or an improvement.
+labels:
+  - enhancement
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value:
+        Search existing issues before submitting. English and German reports are welcome. Remove
+        passwords, tokens, cookies, private registry names and sensitive image contents from logs
+        and screenshots. Report vulnerabilities privately using the security link in the issue
+        chooser.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: Describe who needs this and the limitation they face.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you would like to see.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe other approaches or workarounds.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add examples, screenshots or relevant links.
+    validations:
+      required: false

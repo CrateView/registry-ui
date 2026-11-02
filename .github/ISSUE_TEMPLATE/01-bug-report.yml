@@ -1,0 +1,86 @@
+name: Bug report
+description: Report a reproducible problem in the Crateview application.
+labels:
+  - bug
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value:
+        Search existing issues before submitting. English and German reports are welcome. Remove
+        passwords, tokens, cookies, private registry names and sensitive image contents from logs
+        and screenshots. Report vulnerabilities privately using the security link in the issue
+        chooser.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description:
+        Include the affected release, image tag or commit SHA. For unreleased builds, include
+        the exact commit.
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment method
+      description: How do you run Crateview?
+      options:
+        - Docker Compose
+        - Docker / Podman
+        - Kubernetes
+        - Local development
+        - Other (describe below)
+    validations:
+      required: true
+  - type: input
+    id: registry
+    attributes:
+      label: Registry implementation and version
+      description: For example, Distribution 3.x; include whether access is anonymous, Basic Auth or
+        token-based. Do not include credentials.
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: Browser and operating system
+      description: Include browser version and OS; add container architecture if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide numbered steps and a minimal reproduction using non-sensitive test data.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead? Include the error message.
+    validations:
+      required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Relevant configuration
+      description: Include only relevant, sanitized environment variables, Compose configuration or
+        reverse-proxy settings.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and screenshots
+      description: Add sanitized browser/server logs and screenshots. Remove secrets and private image data.
+    validations:
+      required: false

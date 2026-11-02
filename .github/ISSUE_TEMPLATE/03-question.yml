@@ -1,0 +1,43 @@
+name: Question / support
+description: Ask for help using or contributing to Crateview.
+labels:
+  - question
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value:
+        Search existing issues before submitting. English and German reports are welcome. Remove
+        passwords, tokens, cookies, private registry names and sensitive image contents from logs
+        and screenshots. Report vulnerabilities privately using the security link in the issue
+        chooser.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to achieve, and where are you stuck?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description:
+        Include the affected release, image tag or commit SHA. For unreleased builds, include
+        the exact commit.
+    validations:
+      required: true
+  - type: textarea
+    id: attempts
+    attributes:
+      label: What have you tried?
+      description: Include relevant documentation and troubleshooting steps.
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Additional context
+      description: Add sanitized configuration, logs or screenshots if useful.
+    validations:
+      required: false
