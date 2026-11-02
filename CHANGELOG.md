@@ -1,5 +1,11 @@
 # @crateview/registry-ui
 
+## 0.5.1
+
+### Patch Changes
+
+- 7b30842: Group dashboard and repository navigation under Workspace. Wrap long commands, Markdown code blocks and JSON documents without changing their copied source.
+
 ## 0.5.0
 
 ### Minor Changes
