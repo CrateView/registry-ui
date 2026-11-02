@@ -1,7 +1,7 @@
 import { Store } from './store.mjs';
 
 const [command, username, pattern, role] = process.argv.slice(2);
-const store = new Store(process.env.AUTH_DATA_DIR || '/data');
+const store = new Store(process.env.AUTH_DATA_DIR || process.env.NUXT_AUTH_DATA_DIR || '/data');
 try {
   if (command === 'add' || command === 'passwd') {
     if (process.stdin.isTTY) throw new Error('Supply the password on stdin (never as a command argument)');
