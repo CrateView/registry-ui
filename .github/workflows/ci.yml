@@ -47,5 +47,9 @@ jobs:
         run: npm run test:pwa:integration
       - name: Test filesystem branding
         run: npm run test:branding:integration
-      - name: Test both account modes against Distribution
-        run: npm run test:auth:integration -- --docker
+      - name: Test integrated and external account backends against Distribution
+        run: npm run test:auth:integration -- --docker --browser
+      - name: Build account-management production image
+        run: docker build -t crateview-accounts:ci .
+      - name: Test account bootstrap and Docker access with the production image
+        run: npm run test:auth:image -- crateview-accounts:ci

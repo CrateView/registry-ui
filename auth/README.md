@@ -246,6 +246,9 @@ npm ci --prefix auth
 npm run test:auth
 npm run build
 npm run test:auth:integration
+# Verify the production image, bootstrap and real Docker push/pull:
+docker build -t crateview-accounts:test .
+npm run test:auth:image -- crateview-accounts:test
 # Optional: requires Playwright Chromium (npx playwright install chromium).
 npm run test:auth:browser
 # Actual Docker CLI login in an isolated docker:29-cli container:

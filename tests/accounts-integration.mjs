@@ -23,7 +23,8 @@ const digest = (value) => 'sha256:' + createHash('sha256').update(value).digest(
 const docker = (args) => execFileSync('docker', args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 async function dockerClient(args, config, input) {
   return new Promise((resolve, reject) => {
-    const hostMapping = process.platform === 'darwin' ? [] : ['--add-host', 'host.docker.internal:host-gateway'];
+    const hostMapping =
+      process.platform === 'darwin' ? [] : ['--network', 'host', '--add-host', 'host.docker.internal:127.0.0.1'];
     const child = spawn(
       'docker',
       [
@@ -70,7 +71,7 @@ async function wait(url) {
   }
   throw new Error(`Startup timed out: ${url}`);
 }
-async function startUi(upstream, mode, authUrl, realm, allowed) {
+async function startUi(upstream, mode, authUrl, realm, allowed, directory = '', overrides = {}) {
   const { createServer } = await import('node:net');
   const reservation = createServer();
   await new Promise((resolve) => reservation.listen(0, '127.0.0.1', resolve));
@@ -86,11 +87,13 @@ async function startUi(upstream, mode, authUrl, realm, allowed) {
       NUXT_SESSION_PASSWORD: 'test-only-session-secret-with-32-characters',
       NUXT_AUTH_MODE: mode,
       NUXT_AUTH_SERVICE_URL: authUrl,
-      NUXT_AUTH_SERVICE_SECRET: secret,
+      NUXT_AUTH_SERVICE_SECRET: directory ? '' : secret,
+      NUXT_AUTH_DATA_DIR: directory,
       NUXT_AUTH_TOKEN_REALM: realm,
       NUXT_USER_CREATION_ALLOWED_USERS: allowed,
       NUXT_REGISTRY_DELETE_ENABLED: 'true',
       NUXT_MONITORING_ENABLED: 'false',
+      ...overrides,
     },
   });
   let log = '';
@@ -103,7 +106,7 @@ async function startUi(upstream, mode, authUrl, realm, allowed) {
   children.push(child);
   const url = `http://127.0.0.1:${port}`;
   try {
-    await wait(url + '/api/registry/status');
+    await wait(url + (Object.keys(overrides).length ? '/' : '/api/registry/status'));
   } catch (error) {
     throw new Error(`${error.message}\n${log}`, { cause: error });
   }
@@ -130,8 +133,10 @@ try {
     const { chromium } = await import('@playwright/test');
     browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE });
   }
-  for (const mode of ['htpasswd', 'token']) {
-    const directory = join(root, mode);
+  for (const backend of ['integrated', 'htpasswd', 'token']) {
+    const mode = backend === 'integrated' ? 'htpasswd' : backend;
+    const directory = join(root, backend);
+    const localDirectory = backend === 'integrated' ? directory : '';
     const store = new Store(directory);
     await store.setPassword('admin', password, { create: true });
     await store.setPassword('reader', password, { create: true });
@@ -160,24 +165,28 @@ try {
       await store.grant('admin', '*', 'manager');
       await store.grant('reader', 'team/*', 'reader');
     }
-    const server = await authServer({
-      mode,
-      directory,
-      managementSecret: secret,
-      issuer: 'crateview-test',
-      service: 'crateview-test-registry',
-      keyPath,
-      certificatePath,
-    });
-    await new Promise((resolve) =>
-      server.listen(0, process.argv.includes('--docker') ? '0.0.0.0' : '127.0.0.1', resolve),
-    );
-    servers.push(server);
-    const authUrl = `http://127.0.0.1:${server.address().port}`;
-    const realm = process.argv.includes('--docker')
-      ? `http://host.docker.internal:${server.address().port}/token`
-      : authUrl + '/token';
-    const name = `crateview-accounts-${mode}-${process.pid}`;
+    let authUrl = '';
+    let realm = '';
+    if (backend !== 'integrated') {
+      const server = await authServer({
+        mode,
+        directory,
+        managementSecret: secret,
+        issuer: 'crateview-test',
+        service: 'crateview-test-registry',
+        keyPath,
+        certificatePath,
+      });
+      await new Promise((resolve) =>
+        server.listen(0, process.argv.includes('--docker') ? '0.0.0.0' : '127.0.0.1', resolve),
+      );
+      servers.push(server);
+      authUrl = `http://127.0.0.1:${server.address().port}`;
+      realm = process.argv.includes('--docker')
+        ? `http://host.docker.internal:${server.address().port}/token`
+        : authUrl + '/token';
+    }
+    const name = `crateview-accounts-${backend}-${process.pid}`;
     const config = `version: 0.1
 log:
   level: error
@@ -331,7 +340,7 @@ esac
         config,
         password,
       );
-      console.log(`${mode}: real docker login passed`);
+      console.log(`${backend}: real docker login passed`);
     }
     if (mode === 'token') {
       assert.equal(
@@ -383,7 +392,7 @@ esac
         401,
       );
     }
-    const ui = await startUi(registry, mode, authUrl, realm, 'admin');
+    const ui = await startUi(registry, mode, authUrl, realm, 'admin', localDirectory);
     if (browser) {
       const { expect } = await import('@playwright/test');
       const context = await browser.newContext({ locale: 'en-US' });
@@ -402,7 +411,7 @@ esac
         await dialog.getByLabel('Confirm new password', { exact: true }).fill(password);
         await dialog.getByRole('button', { name: 'Create user', exact: true }).click();
         await expect(page.getByText('User created.', { exact: true })).toBeVisible();
-        await page.screenshot({ path: `.dev/accounts-${mode}.png`, fullPage: true });
+        await page.screenshot({ path: `.dev/accounts-${backend}.png`, fullPage: true });
         await context.clearCookies();
         await page.goto(ui.url + '/login');
         await page.getByLabel('Username', { exact: true }).fill('browseruser');
@@ -417,7 +426,7 @@ esac
         await page.getByRole('button', { name: 'Change password', exact: true }).click();
         await expect(page).toHaveURL(/\/login$/);
         await store.authenticate('browseruser', 'browser-new-password');
-        console.log(`${mode}: browser account creation and own password change passed`);
+        console.log(`${backend}: browser account creation and own password change passed`);
       } finally {
         await context.close();
       }
@@ -552,7 +561,28 @@ esac
     await assert.rejects(store.authenticate('newuser', 'new-password-456'), { status: 401 });
     assert.deepEqual(await store.grants('newuser'), []);
     assert.equal((await post(ui.url, cookie, '/api/account/users/delete', { username: 'newuser' })).status, 404);
-    const disabled = await startUi(registry, mode, authUrl, realm, '');
+    if (backend === 'integrated') {
+      const accountSnapshot = readFileSync(join(directory, 'htpasswd'), 'utf8');
+      for (const path of ['/internal/users', '/internal/login', '/token']) {
+        const response = await post(ui.url, cookie, path, { username: 'unexposed', password });
+        // Unknown SPA paths may render HTML, but must never expose the internal JSON service.
+        if (response.ok) assert.match(response.headers.get('content-type') || '', /text\/html/);
+        assert.equal(readFileSync(join(directory, 'htpasswd'), 'utf8'), accountSnapshot);
+      }
+      const permissionsPath = join(directory, 'permissions.json');
+      const before = readFileSync(permissionsPath, 'utf8');
+      await writeFile(permissionsPath, '{broken');
+      const rejected = await fetch(ui.url + '/api/account/users', { headers: { Cookie: cookie } });
+      assert.equal(rejected.status, 503);
+      const error = await rejected.text();
+      assert.ok(!error.includes(directory) && !error.includes(password));
+      await writeFile(permissionsPath, before);
+    }
+    await new Promise((resolve) => {
+      ui.child.once('exit', resolve);
+      ui.child.kill('SIGTERM');
+    });
+    const disabled = await startUi(registry, mode, authUrl, realm, '', localDirectory);
     const disabledCookie = await login(disabled.url);
     assert.equal(
       (
@@ -563,15 +593,22 @@ esac
       ).status,
       403,
     );
-    await Promise.all(
-      [disabled.child, ui.child].map(
-        (child) =>
-          new Promise((resolve) => {
-            child.once('exit', resolve);
-            child.kill('SIGTERM');
-          }),
-      ),
-    );
+    await new Promise((resolve) => {
+      disabled.child.once('exit', resolve);
+      disabled.child.kill('SIGTERM');
+    });
+    if (backend === 'integrated') {
+      const conflict = await startUi(registry, mode, '', '', 'admin', localDirectory, {
+        NUXT_AUTH_SERVICE_URL: 'http://invalid.local',
+      });
+      const rejected = await fetch(conflict.url + '/api/registry/status');
+      assert.equal(rejected.status, 500);
+      assert.match(await rejected.text(), /Conflicting account backend configuration/);
+      await new Promise((resolve) => {
+        conflict.child.once('exit', resolve);
+        conflict.child.kill('SIGTERM');
+      });
+    }
     // No UI process participates in these direct registry operations.
     assert.equal(
       (
@@ -591,7 +628,7 @@ esac
       202,
     );
     console.log(
-      `${mode}: Distribution push/pull, account changes, UI policy, catalog and UI-independent access passed`,
+      `${backend}: Distribution push/pull, account changes, UI policy, catalog and UI-independent access passed`,
     );
   }
 } finally {

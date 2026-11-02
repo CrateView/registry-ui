@@ -21,6 +21,12 @@ assert.deepEqual(Object.keys(configuration.services).sort(), ['frontend', 'regis
 for (const service of Object.values(configuration.services))
   for (const port of service.ports || []) port.published = '0';
 configuration.name = project;
+// Normalized Compose output already contains explicit resource names; changing -p alone is insufficient.
+for (const resources of [configuration.volumes, configuration.networks])
+  for (const [name, resource] of Object.entries(resources || {})) {
+    assert.ok(!resource.external, 'Fixtures must not reference external resources');
+    resource.name = `${project}_${name}`;
+  }
 configuration.services.frontend.image = image;
 Object.assign(configuration.services.frontend.environment, {
   NUXT_SESSION_PASSWORD: 'image-fixture-session-secret-with-at-least-32-characters',
