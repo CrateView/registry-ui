@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { createServer as createHttpServer } from 'node:http';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -10,6 +11,18 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 const root = await mkdtemp(join(tmpdir(), 'crateview-pwa-'));
 const children = [];
+const upstream = createHttpServer((_request, response) => {
+  response.writeHead(401, {
+    'Content-Type': 'application/json',
+    'WWW-Authenticate': 'Basic realm="pwa-test-registry"',
+    'Cache-Control': 'no-store',
+  });
+  response.end(
+    JSON.stringify({ errors: [{ code: 'UNAUTHORIZED', message: 'Synthetic registry requires authentication' }] }),
+  );
+});
+upstream.listen(0, '127.0.0.1');
+await once(upstream, 'listening');
 let browser;
 async function start(base, overrides = {}) {
   const reservation = createServer();
@@ -26,6 +39,7 @@ async function start(base, overrides = {}) {
       NUXT_APP_BASE_URL: base,
       NUXT_MONITORING_ENABLED: 'false',
       NUXT_AUTH_MODE: 'off',
+      NUXT_REGISTRY_UPSTREAM: `http://127.0.0.1:${upstream.address().port}`,
       NUXT_PUBLIC_BRAND_NAME: 'PWA Test Registry',
       NUXT_PUBLIC_BRAND_DESCRIPTION: 'Synthetic test registry',
       NUXT_BRAND_PWA_ICON_192_FILE: '',
@@ -76,9 +90,9 @@ async function verifyOffline(page, context, server, base, files) {
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
   await context.addCookies([{ name: 'registry-ui-session', value: 'synthetic-invalid-session', url: server.url }]);
   for (const path of ['api/branding', 'api/account/users', 'v2/']) {
-    const expected = await context.request.get(server.url + path);
+    const expected = await context.request.get(server.url + path, { headers: { Accept: 'application/json' } });
     const actual = await page.evaluate(async (url) => {
-      const response = await fetch(url);
+      const response = await fetch(url, { headers: { Accept: 'application/json' } });
       return {
         status: response.status,
         contentType: response.headers.get('content-type'),
@@ -87,7 +101,8 @@ async function verifyOffline(page, context, server, base, files) {
     }, server.url + path);
     assert.equal(actual.status, expected.status());
     assert.equal(actual.contentType, expected.headers()['content-type'] || null);
-    if (path === 'api/branding') assert.equal(actual.body, await expected.text());
+    if (path === 'api/branding' || path === 'v2/') assert.equal(actual.body, await expected.text());
+    if (path === 'v2/') assert.equal(actual.status, 401);
     assert.ok(!actual.body.includes('You are offline'));
   }
   assert.deepEqual(await page.evaluate(() => caches.keys()), []);
@@ -243,5 +258,6 @@ try {
     if (child.exitCode === null) child.kill();
     await closed;
   }
+  await new Promise((resolve, reject) => upstream.close((error) => (error ? reject(error) : resolve())));
   await rm(root, { recursive: true, force: true });
 }
