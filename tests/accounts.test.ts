@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canCreateUser, scopeForPath } from '../server/utils/accounts';
+import { accountBackend, canCreateUser, scopeForPath } from '../server/utils/accounts';
 
 describe('account policy and registry scopes', () => {
   it('defaults to no creators; matches complete usernames and explicit wildcard', () => {
@@ -18,5 +18,31 @@ describe('account policy and registry scopes', () => {
     ]);
     expect(scopeForPath('/v2/_catalog')).toEqual([]);
     expect(scopeForPath('/v2/')).toEqual([]);
+  });
+});
+
+// Explicit data-directory selection prevents a typo from silently contacting another backend.
+describe('account backend selection', () => {
+  const config = { authMode: 'off', authDataDir: '', authServiceUrl: '', authServiceSecret: '' };
+  it('keeps management disabled by default and selects integrated htpasswd explicitly', () => {
+    expect(accountBackend(config)).toBe('off');
+    expect(accountBackend({ ...config, authMode: 'htpasswd', authDataDir: '/accounts' })).toBe('integrated');
+  });
+  it('retains existing external basic and token configurations', () => {
+    for (const authMode of ['htpasswd', 'token'])
+      expect(
+        accountBackend({ ...config, authMode, authServiceUrl: 'http://auth:8080', authServiceSecret: 'secret' }),
+      ).toBe('external');
+  });
+  it('rejects ambiguous backends and unsupported local modes', () => {
+    for (const extra of [
+      { authMode: 'off' },
+      { authMode: 'token' },
+      { authServiceUrl: 'http://auth:8080' },
+      { authServiceSecret: 'secret' },
+    ])
+      expect(() => accountBackend({ ...config, authMode: 'htpasswd', authDataDir: '/accounts', ...extra })).toThrow(
+        'Conflicting account backend configuration',
+      );
   });
 });
