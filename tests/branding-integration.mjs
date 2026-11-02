@@ -53,8 +53,9 @@ async function start(overrides = {}) {
   })
   const closed = once(child, 'close')
   children.push({ child, closed })
-  const url = `http://127.0.0.1:${port}`
-  return { child, closed, url, output: () => output }
+  const origin = `http://127.0.0.1:${port}`
+  const url = origin + (overrides.NUXT_APP_BASE_URL || '/').replace(/\/$/, '')
+  return { child, closed, origin, url, output: () => output }
 }
 async function ready(server) {
   for (let attempt = 0; attempt < 100; attempt++) {
@@ -86,67 +87,75 @@ try {
   defaults.child.kill()
   await defaults.closed
 
-  const server = await start({
-    NUXT_BRAND_LOGO_LIGHT_FILE: lightFile,
-    NUXT_BRAND_LOGO_DARK_FILE: relative(process.cwd(), darkFile),
-    NUXT_BRAND_FAVICON_FILE: iconFile,
-  })
-  const links = await ready(server)
-  assert.deepEqual(links, {
-    logoLight: '/api/branding/logo-light',
-    logoDark: '/api/branding/logo-dark',
-    favicon: '/api/branding/favicon',
-  })
-  assert.ok(!JSON.stringify(links).includes(root))
-  for (const [key, body, type] of [
-    ['logoLight', Buffer.from(light), 'image/svg+xml'],
-    ['logoDark', Buffer.from(dark), 'image/svg+xml'],
-    ['favicon', icon, 'image/x-icon'],
-  ]) {
-    const response = await fetch(server.url + links[key])
-    assert.equal(response.status, 200)
-    assert.equal(response.headers.get('content-type'), type)
-    assert.equal(response.headers.get('x-content-type-options'), 'nosniff')
-    assert.deepEqual(Buffer.from(await response.arrayBuffer()), body)
-  }
-  for (const name of ['unknown', '__proto__', 'private-light.svg', 'logo-light?path=/etc/passwd']) {
-    const response = await fetch(`${server.url}/api/branding/${name}`)
-    // A query cannot redirect a configured asset to another file.
-    if (name.startsWith('logo-light?')) assert.equal(await response.text(), light)
-    else {
-      assert.equal(response.status, 404)
-      assert.ok(!(await response.text()).includes(root))
+  for (const baseURL of ['/', '/registry/']) {
+    const server = await start({
+      NUXT_APP_BASE_URL: baseURL,
+      NUXT_BRAND_LOGO_LIGHT_FILE: lightFile,
+      NUXT_BRAND_LOGO_DARK_FILE: relative(process.cwd(), darkFile),
+      NUXT_BRAND_FAVICON_FILE: iconFile,
+    })
+    const links = await ready(server)
+    assert.deepEqual(links, {
+      logoLight: `${baseURL}api/branding/logo-light`,
+      logoDark: `${baseURL}api/branding/logo-dark`,
+      favicon: `${baseURL}api/branding/favicon`,
+    })
+    assert.ok(!JSON.stringify(links).includes(root))
+    for (const [key, body, type] of [
+      ['logoLight', Buffer.from(light), 'image/svg+xml'],
+      ['logoDark', Buffer.from(dark), 'image/svg+xml'],
+      ['favicon', icon, 'image/x-icon'],
+    ]) {
+      const response = await fetch(server.origin + links[key])
+      assert.equal(response.status, 200)
+      assert.equal(response.headers.get('content-type'), type)
+      assert.equal(response.headers.get('x-content-type-options'), 'nosniff')
+      assert.deepEqual(Buffer.from(await response.arrayBuffer()), body)
     }
-  }
-  assert.ok(!(await (await fetch(server.url + '/login')).text()).includes(root))
+    for (const name of [
+      'unknown',
+      '__proto__',
+      'private-light.svg',
+      'logo-light?path=/etc/passwd',
+    ]) {
+      const response = await fetch(`${server.url}/api/branding/${name}`)
+      // A query cannot redirect a configured asset to another file.
+      if (name.startsWith('logo-light?')) assert.equal(await response.text(), light)
+      else {
+        assert.equal(response.status, 404)
+        assert.ok(!(await response.text()).includes(root))
+      }
+    }
+    assert.ok(!(await (await fetch(server.url + '/login')).text()).includes(root))
 
-  browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE })
-  const context = await browser.newContext({ locale: 'en-US', colorScheme: 'light' })
-  const page = await context.newPage()
-  await page.route('**/api/registry/status', (route) =>
-    route.fulfill({ json: { auth: true, authType: 'basic', user: '', deleteEnabled: false } }),
-  )
-  const errors = []
-  page.on('pageerror', (error) => errors.push(error.message))
-  await page.goto(server.url + '/login')
-  const waitForLogo = (src) =>
-    page.waitForFunction((expected) => {
-      const image = document.querySelector('header img')
-      return image?.getAttribute('src') === expected && image.complete && image.naturalWidth > 0
-    }, src)
-  await waitForLogo(links.logoLight)
-  await page.waitForFunction(
-    () =>
-      document.querySelector('link[rel="icon"]')?.getAttribute('href') === '/api/branding/favicon',
-  )
-  await page.emulateMedia({ colorScheme: 'dark' })
-  await waitForLogo(links.logoDark)
-  assert.deepEqual(errors, [])
-  assert.ok(!(await page.content()).includes(root))
-  await browser.close()
-  browser = undefined
-  server.child.kill()
-  await server.closed
+    browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE })
+    const context = await browser.newContext({ locale: 'en-US', colorScheme: 'light' })
+    const page = await context.newPage()
+    await page.route('**/api/registry/status', (route) =>
+      route.fulfill({ json: { auth: true, authType: 'basic', user: '', deleteEnabled: false } }),
+    )
+    const errors = []
+    page.on('pageerror', (error) => errors.push(error.message))
+    await page.goto(server.url + '/login')
+    const waitForLogo = (src) =>
+      page.waitForFunction((expected) => {
+        const image = document.querySelector('header img')
+        return image?.getAttribute('src') === expected && image.complete && image.naturalWidth > 0
+      }, src)
+    await waitForLogo(links.logoLight)
+    await page.waitForFunction(
+      (expected) => document.querySelector('link[rel="icon"]')?.getAttribute('href') === expected,
+      links.favicon,
+    )
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await waitForLogo(links.logoDark)
+    assert.deepEqual(errors, [])
+    assert.ok(!(await page.content()).includes(root))
+    await browser.close()
+    browser = undefined
+    server.child.kill()
+    await server.closed
+  }
 
   const invalid = await start({ NUXT_BRAND_LOGO_LIGHT_FILE: resolve(root, 'missing.svg') })
   await Promise.race([
@@ -158,7 +167,7 @@ try {
   assert.notEqual(invalid.child.exitCode, 0)
   assert.match(invalid.output(), /Invalid NUXT_BRAND_LOGO_LIGHT_FILE/)
   console.log(
-    'Branding integration passed: URL defaults, file bytes, MIME types, private paths, login logos, dark mode, favicon, startup rejection',
+    'Branding integration passed: URL defaults, file bytes, MIME types, private paths, login logos, dark mode, favicon, deployment base URL, startup rejection',
   )
 } finally {
   await browser?.close()
