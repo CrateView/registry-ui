@@ -150,11 +150,16 @@ async function signOut() {
                 { label: registry.user.value, type: 'label' },
                 { label: t('signOut'), icon: 'i-lucide-log-out', onSelect: signOut },
               ]"
+              :ui="{ content: 'max-w-[calc(100vw-2rem)]' }"
             >
               <UButton
                 color="neutral"
                 variant="outline"
                 icon="i-lucide-user-round"
+                trailing-icon="i-lucide-chevron-down"
+                :label="registry.user.value"
+                :title="registry.user.value"
+                :ui="{ label: 'max-w-[24vw] truncate sm:max-w-48' }"
                 :aria-label="t('account')"
               />
             </UDropdownMenu>
