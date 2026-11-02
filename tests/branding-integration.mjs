@@ -129,20 +129,18 @@ try {
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(server.url + '/login')
-  const logo = page.locator('header img')
-  await logo.waitFor()
-  await page.waitForFunction(
-    () => document.querySelector('header img')?.getAttribute('src') === '/api/branding/logo-light',
-  )
-  assert.equal(await logo.evaluate((image) => image.complete && image.naturalWidth > 0), true)
+  const waitForLogo = (src) =>
+    page.waitForFunction((expected) => {
+      const image = document.querySelector('header img')
+      return image?.getAttribute('src') === expected && image.complete && image.naturalWidth > 0
+    }, src)
+  await waitForLogo(links.logoLight)
   await page.waitForFunction(
     () =>
       document.querySelector('link[rel="icon"]')?.getAttribute('href') === '/api/branding/favicon',
   )
   await page.emulateMedia({ colorScheme: 'dark' })
-  await page.waitForFunction(
-    () => document.querySelector('header img')?.getAttribute('src') === '/api/branding/logo-dark',
-  )
+  await waitForLogo(links.logoDark)
   assert.deepEqual(errors, [])
   assert.ok(!(await page.content()).includes(root))
   await browser.close()
