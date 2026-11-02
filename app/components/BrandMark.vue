@@ -13,12 +13,13 @@
 <script setup lang="ts">
 defineProps<{ compact?: boolean }>();
 const config = useRuntimeConfig().public;
+const branding = useBranding();
 const mode = useColorMode();
 const logo = computed(() =>
   safeUrl(
     mode.value === 'dark'
-      ? config.brandLogoDark || config.brandLogoLight
-      : config.brandLogoLight || config.brandLogoDark,
+      ? branding.value.logoDark || branding.value.logoLight
+      : branding.value.logoLight || branding.value.logoDark,
   ),
 );
 </script>

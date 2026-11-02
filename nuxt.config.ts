@@ -34,6 +34,9 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    brandLogoLightFile: '',
+    brandLogoDarkFile: '',
+    brandFaviconFile: '',
     registryUpstream: 'http://127.0.0.1:5000',
     registryDeleteEnabled: false,
     sessionPassword: '',

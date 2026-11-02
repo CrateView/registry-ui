@@ -41,5 +41,9 @@ jobs:
         run: npm run test:auth
       - name: Build production application
         run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test filesystem branding
+        run: npm run test:branding:integration
       - name: Test both account modes against Distribution
         run: npm run test:auth:integration -- --docker

@@ -121,6 +121,23 @@ See [the account service guide](auth/README.md) for both modes, Compose overlays
 
 See [.env.example](.env.example). Runtime `NUXT_PUBLIC_BRAND_*` variables control name, description, separate light/dark logos, favicon, page title template and optional links. Runtime `NUXT_PUBLIC_THEME_*` variables override the defaults in `app/app.config.ts`: primary `red`, neutral `zinc`, radius and font family. Other Nuxt UI component/icon overrides use standard `ui` app config; CSS tokens live in `app/assets/css/main.css`.
 
+Use private `NUXT_BRAND_LOGO_LIGHT_FILE`, `NUXT_BRAND_LOGO_DARK_FILE`, and `NUXT_BRAND_FAVICON_FILE` variables to serve files from the server filesystem without rebuilding. A configured file overrides its corresponding public URL; unset file variables preserve URL behavior. Absolute paths are supported; relative paths resolve against the server working directory (`/app` in the Docker image). SVG, PNG, JPEG, WebP, GIF, and ICO files are supported. Configured files must be readable, nonempty regular files with a supported extension; invalid settings stop startup. Assets are loaded at startup: restart after changing a path or file contents. Only fixed public asset URLs reach the browser, including on the sign-in page; filesystem paths remain private.
+
+For Docker Compose, create a `compose.branding.yaml` override:
+
+```yaml
+services:
+  frontend:
+    volumes:
+      - ./branding:/app/branding:ro
+    environment:
+      NUXT_BRAND_LOGO_LIGHT_FILE: /app/branding/logo-light.svg
+      NUXT_BRAND_LOGO_DARK_FILE: /app/branding/logo-dark.svg
+      NUXT_BRAND_FAVICON_FILE: /app/branding/favicon.ico
+```
+
+Create the three files in `./branding`, ensure the container's `node` user can read them, then run `docker compose -f compose.yaml -f compose.branding.yaml up -d`. Paths in these variables refer to files inside the container, not host paths. Logo files and favicons are public assets; do not configure confidential files.
+
 Defaults use the system color scheme. Users can select System/Light/Dark and one of 13 interface languages; preferences persist independently of sign-out. Custom logos/fonts can be bundled under `public/` or served via configured HTTP(S) URLs. No theme-color editor is shown to end users.
 
 ## Checks
@@ -132,6 +149,7 @@ npm test
 npm run format:check
 npm run build
 npx playwright install chromium
+npm run test:branding:integration
 ```
 
 The browser suite reads the local registry on port 5000 containing `alpine:latest`. Its Basic Auth, deletion, multi-platform and referrer tests use a **separate official Distribution container** on port 5001 and a branded frontend on port 3001. Test data uses tmpfs; production/local registry data is not deleted.
