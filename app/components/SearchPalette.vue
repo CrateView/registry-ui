@@ -145,7 +145,8 @@ watch([term, open], ([value, visible]) => {
   }, 250);
 });
 watch(
-  () => route.fullPath,
+  // Explore replaces its query while typing; that must not dismiss an open palette.
+  () => route.path,
   () => {
     open.value = false;
   },
