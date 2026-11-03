@@ -24,10 +24,10 @@
             <th>
               {{ t('description') }}
             </th>
-            <th>
+            <th class="text-center">
               {{ t('platforms') }}
             </th>
-            <th>
+            <th class="text-right">
               {{ t('tags') }}
             </th>
           </tr>
@@ -87,8 +87,8 @@
                   : ''
               }}
             </td>
-            <td>
-              <div v-if="row.repo" class="flex flex-wrap gap-1">
+            <td class="text-center">
+              <div v-if="row.repo" class="flex flex-wrap justify-center gap-1">
                 <UBadge
                   v-for="platform in row.repo.Platforms"
                   :key="`${platform.Os}/${platform.Arch}`"
@@ -100,7 +100,7 @@
                 </UBadge>
               </div>
             </td>
-            <td>
+            <td class="text-right">
               {{ row.repo ? (row.repo.TagCount ?? '—') : '' }}
             </td>
           </tr>
