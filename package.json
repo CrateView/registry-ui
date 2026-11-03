@@ -67,7 +67,7 @@
     "type": "buymeacoffee",
     "url": "https://buymeacoffee.com/tobiaswaelde"
   },
-  "version": "0.7.0",
+  "version": "0.8.0",
   "engines": {
     "node": ">=26.13.0 <27"
   },

@@ -1,5 +1,15 @@
 # @crateview/registry-ui
 
+## 0.8.0
+
+### Minor Changes
+
+- 9161995: Align table headings with their content, search repositories live, show pagination ranges, and configure date displays with NUXT_PUBLIC_DATE_FORMAT.
+
+### Patch Changes
+
+- 5b44e5c: License Crateview under MIT, document attribution requirements, and include the license in the container image.
+
 ## 0.7.0
 
 ### Minor Changes
