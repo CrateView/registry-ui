@@ -232,5 +232,6 @@
   "userDeleted": "Usuario eliminado.",
   "userPasswordChanged": "Contraseña cambiada.",
   "pwaOfflineTitle": "No tienes conexión",
-  "pwaOfflineDescription": "Conéctate a internet y vuelve a intentar abrir tu registro."
+  "pwaOfflineDescription": "Conéctate a internet y vuelve a intentar abrir tu registro.",
+  "paginationRange": "Mostrando {start}–{end} de {total}"
 }

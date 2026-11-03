@@ -72,7 +72,7 @@
                 </div>
                 <span v-else class="text-muted">{{ t('noRepositoryAccess') }}</span>
               </td>
-              <td>
+              <td class="text-right">
                 <div class="flex justify-end">
                   <UDropdownMenu :items="userActions(user)" :content="{ align: 'end' }">
                     <UButton

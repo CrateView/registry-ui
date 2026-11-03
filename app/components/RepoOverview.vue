@@ -1,18 +1,5 @@
 <template>
   <div class="space-y-3">
-    <div class="flex justify-end gap-1" role="group" :aria-label="t('view')">
-      <UButton
-        v-for="mode in ['table', 'grid'] as const"
-        :key="mode"
-        color="neutral"
-        :icon="mode === 'table' ? 'i-lucide-list-tree' : 'i-lucide-layout-grid'"
-        :variant="view === mode ? 'soft' : 'ghost'"
-        :aria-pressed="view === mode"
-        @click="view = mode"
-      >
-        {{ t(mode) }}
-      </UButton>
-    </div>
     <RepoGrid v-if="view === 'grid'" :repos="repos" />
     <div v-else class="panel overflow-x-auto">
       <table class="data-table">
@@ -24,10 +11,10 @@
             <th>
               {{ t('description') }}
             </th>
-            <th>
+            <th class="text-center">
               {{ t('platforms') }}
             </th>
-            <th>
+            <th class="text-right">
               {{ t('tags') }}
             </th>
           </tr>
@@ -87,8 +74,8 @@
                   : ''
               }}
             </td>
-            <td>
-              <div v-if="row.repo" class="flex flex-wrap gap-1">
+            <td class="text-center">
+              <div v-if="row.repo" class="flex flex-wrap justify-center gap-1">
                 <UBadge
                   v-for="platform in row.repo.Platforms"
                   :key="`${platform.Os}/${platform.Arch}`"
@@ -100,7 +87,7 @@
                 </UBadge>
               </div>
             </td>
-            <td>
+            <td class="text-right">
               {{ row.repo ? (row.repo.TagCount ?? '—') : '' }}
             </td>
           </tr>
@@ -113,9 +100,8 @@
 <script setup lang="ts">
 import type { Repo } from '~/utils/types';
 
-const props = defineProps<{ repos: Repo[] }>();
+const props = defineProps<{ repos: Repo[]; view?: 'table' | 'grid' }>();
 const { t } = useI18n();
-const view = useState<'table' | 'grid'>('repository-view', () => 'table');
 const collapsedPaths = ref(new Set<string>());
 function toggle(path: string) {
   const next = new Set(collapsedPaths.value);

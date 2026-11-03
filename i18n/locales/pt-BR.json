@@ -232,5 +232,6 @@
   "userDeleted": "Usuário excluído.",
   "userPasswordChanged": "Senha alterada.",
   "pwaOfflineTitle": "Você está offline",
-  "pwaOfflineDescription": "Conecte-se à internet e tente abrir seu registro novamente."
+  "pwaOfflineDescription": "Conecte-se à internet e tente abrir seu registro novamente.",
+  "paginationRange": "Mostrando {start}–{end} de {total}"
 }

@@ -89,7 +89,7 @@
         <UAlert v-if="reloadError" color="error" :description="reloadError" />
         <ImageTable :images="visible" :repo="name" :selection-key="`${page}:${term}:${tagSort}`" @deleted="load" />
         <RequestState v-if="!visible.length" empty />
-        <UPagination v-if="filtered.length > 12" v-model:page="page" :items-per-page="12" :total="filtered.length" />
+        <ResultPagination v-model:page="page" :items-per-page="12" :total="filtered.length" />
       </template>
     </RequestState>
   </div>

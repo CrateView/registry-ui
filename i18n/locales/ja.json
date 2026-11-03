@@ -232,5 +232,6 @@
   "userDeleted": "ユーザーを削除しました。",
   "userPasswordChanged": "パスワードを変更しました。",
   "pwaOfflineTitle": "オフラインです",
-  "pwaOfflineDescription": "インターネットに接続してから、レジストリをもう一度開いてください。"
+  "pwaOfflineDescription": "インターネットに接続してから、レジストリをもう一度開いてください。",
+  "paginationRange": "全 {total} 件中 {start}–{end} 件を表示"
 }

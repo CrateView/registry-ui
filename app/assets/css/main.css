@@ -44,6 +44,11 @@ select {
   text-align: start;
   font-size: 0.875rem;
 }
+@layer components {
+  .data-table th {
+    text-align: start;
+  }
+}
 .data-table th {
   padding: 0.625rem 1rem;
   font-weight: 500;

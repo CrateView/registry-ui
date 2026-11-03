@@ -30,17 +30,17 @@
             <th>
               {{ t('digest') }}
             </th>
-            <th>
+            <th class="text-center">
               {{ t('platforms') }}
             </th>
-            <th>
+            <th class="text-right">
               {{ t('size') }}
             </th>
 
             <th>
               {{ t('updated') }}
             </th>
-            <th v-if="canDelete">
+            <th v-if="canDelete" class="text-right">
               {{ t('actions') }}
             </th>
           </tr>
@@ -68,8 +68,8 @@
             <td class="mono text-xs text-muted" :title="image.Digest">
               {{ `${image.Digest?.slice(0, 19) ?? ''}…` }}
             </td>
-            <td>
-              <div class="flex flex-wrap gap-1">
+            <td class="text-center">
+              <div class="flex flex-wrap justify-center gap-1">
                 <UBadge
                   v-for="manifest in image.Manifests"
                   :key="manifest.Digest"
@@ -81,14 +81,14 @@
                 </UBadge>
               </div>
             </td>
-            <td class="whitespace-nowrap">
+            <td class="text-right whitespace-nowrap">
               {{ bytes(image.Size || image.Manifests?.reduce((sum, m) => sum + Number(m.Size || 0), 0)) }}
             </td>
 
             <td class="whitespace-nowrap text-muted">
               {{ date(image.LastUpdated) }}
             </td>
-            <td v-if="canDelete">
+            <td v-if="canDelete" class="text-right">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"

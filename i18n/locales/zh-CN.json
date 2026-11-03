@@ -232,5 +232,6 @@
   "userDeleted": "用户已删除。",
   "userPasswordChanged": "密码已更改。",
   "pwaOfflineTitle": "你已离线",
-  "pwaOfflineDescription": "请连接互联网，然后重试打开镜像仓库。"
+  "pwaOfflineDescription": "请连接互联网，然后重试打开镜像仓库。",
+  "paginationRange": "显示 {start}–{end}，共 {total} 项"
 }

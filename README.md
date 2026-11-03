@@ -155,6 +155,17 @@ See [the account management guide](auth/README.md) for integrated and external m
 
 See [.env.example](.env.example). Runtime `NUXT_PUBLIC_BRAND_*` variables control name, description, separate light/dark logos, favicon, page title template and optional links. Runtime `NUXT_PUBLIC_THEME_*` variables override the defaults in `app/app.config.ts`: primary `red`, neutral `zinc`, radius and font family. Other Nuxt UI component/icon overrides use standard `ui` app config; CSS tokens live in `app/assets/css/main.css`.
 
+Set runtime `NUXT_PUBLIC_DATE_FORMAT` to format all UI dates, for example
+`DD.MM.YYYY HH:mm` or `YYYY-MM-DD[T]HH:mm:ssZ`. Supported tokens are `YYYY` (year),
+`MM` (month), `DD` (day), `HH` (24-hour clock), `mm` (minutes), `ss` (seconds),
+and `Z` (UTC offset, such as `+02:00`). Enclose literal text in brackets, such as
+`[at]`; separators and whitespace need no brackets. Unsupported tokens, malformed
+brackets, and patterns without any date/time tokens fall back to the browser's
+locale with medium date and short time. Empty or unset configuration uses that
+same browser default, independently of the selected interface language. All
+formats use the browser's timezone, including daylight saving time. Invalid or
+missing dates display `—`. Number formatting still follows the interface language.
+
 Use private `NUXT_BRAND_LOGO_LIGHT_FILE`, `NUXT_BRAND_LOGO_DARK_FILE`, and `NUXT_BRAND_FAVICON_FILE` variables to serve files from the server filesystem without rebuilding. A configured file overrides its corresponding public URL; unset file variables preserve URL behavior. Absolute paths are supported; relative paths resolve against the server working directory (`/app` in the Docker image). SVG, PNG, JPEG, WebP, GIF, and ICO files are supported. Configured files must be readable, nonempty regular files with a supported extension; invalid settings stop startup. Assets are loaded at startup: restart after changing a path or file contents. Only fixed public asset URLs reach the browser, including on the sign-in page; filesystem paths remain private.
 
 For Docker Compose, create a `compose.branding.yaml` override:

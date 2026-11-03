@@ -232,5 +232,6 @@
   "userDeleted": "Pengguna dihapus.",
   "userPasswordChanged": "Kata sandi diubah.",
   "pwaOfflineTitle": "Anda sedang offline",
-  "pwaOfflineDescription": "Hubungkan ke internet, lalu coba buka registri Anda lagi."
+  "pwaOfflineDescription": "Hubungkan ke internet, lalu coba buka registri Anda lagi.",
+  "paginationRange": "Menampilkan {start}–{end} dari {total}"
 }

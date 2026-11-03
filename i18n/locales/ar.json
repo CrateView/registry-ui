@@ -232,5 +232,6 @@
   "userDeleted": "تم حذف المستخدم.",
   "userPasswordChanged": "تم تغيير كلمة المرور.",
   "pwaOfflineTitle": "أنت غير متصل بالإنترنت",
-  "pwaOfflineDescription": "اتصل بالإنترنت، ثم حاول فتح سجل الحاويات مرة أخرى."
+  "pwaOfflineDescription": "اتصل بالإنترنت، ثم حاول فتح سجل الحاويات مرة أخرى.",
+  "paginationRange": "عرض {start}–{end} من {total}"
 }

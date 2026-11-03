@@ -158,8 +158,7 @@ const now = ref(Date.now());
 const error = ref('');
 let sequence = 0;
 let timer: ReturnType<typeof setInterval> | undefined;
-const time = (value: number | null | undefined) =>
-  value == null ? '—' : new Intl.DateTimeFormat(locale.value, { dateStyle: 'short', timeStyle: 'short' }).format(value);
+const { date: time } = useFormatting();
 const number = (value: number | null | undefined) =>
   value == null ? '—' : new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(value);
 const labels = computed(() => data.value?.series.map((point) => time(point.at)) || []);

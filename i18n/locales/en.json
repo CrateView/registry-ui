@@ -232,5 +232,6 @@
   "userDeleted": "User deleted.",
   "userPasswordChanged": "Password changed.",
   "pwaOfflineTitle": "You are offline",
-  "pwaOfflineDescription": "Connect to the internet, then try again to open your registry."
+  "pwaOfflineDescription": "Connect to the internet, then try again to open your registry.",
+  "paginationRange": "Showing {start}–{end} of {total}"
 }

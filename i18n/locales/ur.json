@@ -232,5 +232,6 @@
   "userDeleted": "صارف حذف ہو گیا۔",
   "userPasswordChanged": "پاس ورڈ تبدیل ہو گیا۔",
   "pwaOfflineTitle": "آپ آف لائن ہیں",
-  "pwaOfflineDescription": "انٹرنیٹ سے جڑیں، پھر اپنی رجسٹری کھولنے کی دوبارہ کوشش کریں۔"
+  "pwaOfflineDescription": "انٹرنیٹ سے جڑیں، پھر اپنی رجسٹری کھولنے کی دوبارہ کوشش کریں۔",
+  "paginationRange": "{total} میں سے {start}–{end} دکھائے جا رہے ہیں"
 }

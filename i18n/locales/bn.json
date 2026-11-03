@@ -232,5 +232,6 @@
   "userDeleted": "ব্যবহারকারী মুছে ফেলা হয়েছে।",
   "userPasswordChanged": "পাসওয়ার্ড পরিবর্তিত হয়েছে।",
   "pwaOfflineTitle": "আপনি অফলাইনে আছেন",
-  "pwaOfflineDescription": "ইন্টারনেটে সংযোগ করুন, তারপর আপনার রেজিস্ট্রি খুলতে আবার চেষ্টা করুন।"
+  "pwaOfflineDescription": "ইন্টারনেটে সংযোগ করুন, তারপর আপনার রেজিস্ট্রি খুলতে আবার চেষ্টা করুন।",
+  "paginationRange": "{total}টির মধ্যে {start}–{end} দেখানো হচ্ছে"
 }
