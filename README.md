@@ -373,3 +373,10 @@ receipt preserves the original documentation revision.
 ## Coding conventions
 
 See [coding guidelines](docs/coding-guidelines.md) for formatting, Vue component patterns, and verification commands.
+
+## License
+
+Crateview is licensed under the [MIT License](LICENSE).
+Copyright (c) 2026 [Tobias Wälde](https://tobiaswaelde.com).
+Redistributed copies or substantial portions must retain the copyright and license notices.
+Third-party dependencies retain their respective licenses.
