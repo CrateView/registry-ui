@@ -13,13 +13,15 @@
     </div>
     <div class="space-y-3">
       <div class="flex flex-wrap items-start gap-3">
-        <ValidatedSearchInput
-          v-model="term"
-          icon="i-lucide-search"
-          class="min-w-48 flex-1"
-          :placeholder="t('search')"
-          :aria-label="t('search')"
-        />
+        <div class="min-w-48 flex-1">
+          <ValidatedSearchInput
+            v-model="term"
+            icon="i-lucide-search"
+            class="w-full"
+            :placeholder="t('search')"
+            :aria-label="t('search')"
+          />
+        </div>
         <USelect
           v-model="sort"
           :items="[
