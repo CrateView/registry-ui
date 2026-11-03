@@ -232,5 +232,6 @@
   "userDeleted": "Пользователь удалён.",
   "userPasswordChanged": "Пароль изменён.",
   "pwaOfflineTitle": "Вы не в сети",
-  "pwaOfflineDescription": "Подключитесь к интернету и попробуйте снова открыть реестр."
+  "pwaOfflineDescription": "Подключитесь к интернету и попробуйте снова открыть реестр.",
+  "paginationRange": "Показано {start}–{end} из {total}"
 }

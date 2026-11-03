@@ -232,5 +232,6 @@
   "userDeleted": "Utilisateur supprimé.",
   "userPasswordChanged": "Mot de passe modifié.",
   "pwaOfflineTitle": "Vous êtes hors ligne",
-  "pwaOfflineDescription": "Connectez-vous à Internet, puis réessayez d’ouvrir votre registre."
+  "pwaOfflineDescription": "Connectez-vous à Internet, puis réessayez d’ouvrir votre registre.",
+  "paginationRange": "Affichage de {start} à {end} sur {total}"
 }

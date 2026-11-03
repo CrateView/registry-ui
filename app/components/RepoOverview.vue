@@ -1,18 +1,5 @@
 <template>
   <div class="space-y-3">
-    <div class="flex justify-end gap-1" role="group" :aria-label="t('view')">
-      <UButton
-        v-for="mode in ['table', 'grid'] as const"
-        :key="mode"
-        color="neutral"
-        :icon="mode === 'table' ? 'i-lucide-list-tree' : 'i-lucide-layout-grid'"
-        :variant="view === mode ? 'soft' : 'ghost'"
-        :aria-pressed="view === mode"
-        @click="view = mode"
-      >
-        {{ t(mode) }}
-      </UButton>
-    </div>
     <RepoGrid v-if="view === 'grid'" :repos="repos" />
     <div v-else class="panel overflow-x-auto">
       <table class="data-table">
@@ -113,9 +100,8 @@
 <script setup lang="ts">
 import type { Repo } from '~/utils/types';
 
-const props = defineProps<{ repos: Repo[] }>();
+const props = defineProps<{ repos: Repo[]; view?: 'table' | 'grid' }>();
 const { t } = useI18n();
-const view = useState<'table' | 'grid'>('repository-view', () => 'table');
 const collapsedPaths = ref(new Set<string>());
 function toggle(path: string) {
   const next = new Set(collapsedPaths.value);
