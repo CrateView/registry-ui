@@ -74,7 +74,8 @@
 </template>
 
 <script setup lang="ts">
-const { t, locale } = useI18n();
+const { t } = useI18n();
+const { date } = useFormatting();
 const open = ref(false);
 const { current, releases, latest, updateAvailable, loading, failed, load } = useVersionCheck();
 const history = computed(() => releases.value.slice(updateAvailable.value ? 1 : 0, updateAvailable.value ? 7 : 6));
@@ -82,7 +83,4 @@ onMounted(load);
 watch(open, (value) => {
   if (value) load();
 });
-function date(value: string | null) {
-  return value ? new Date(value).toLocaleDateString(locale.value) : '';
-}
 </script>

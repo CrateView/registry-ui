@@ -56,6 +56,7 @@ export default defineNuxtConfig({
     monitoringDatabasePath: '.dev/monitoring.sqlite',
     public: {
       appVersion: version,
+      dateFormat: '',
       themePrimary: '',
       themeNeutral: '',
       themeRadius: '',

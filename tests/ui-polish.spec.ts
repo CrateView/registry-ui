@@ -45,7 +45,7 @@ for (const locale of ['en', 'de', 'ar']) {
     await page
       .context()
       .addCookies([{ name: 'registry-ui-language', value: locale, url: test.info().project.use.baseURL! }]);
-    if (locale === 'de') await page.setViewportSize({ width: 390, height: 844 });
+    await page.setViewportSize(locale === 'de' ? { width: 390, height: 844 } : { width: 1178, height: 1262 });
     for (const [path, alignment] of [
       ['/users', ['start', 'right']],
       ['/explore', ['start', 'start', 'center', 'right']],
@@ -68,6 +68,9 @@ for (const locale of ['en', 'de', 'ar']) {
         if (expected !== 'start') expect(cells[index]).toBe(expected);
       });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      if (locale === 'en' && path === '/explore') {
+        await page.screenshot({ path: '.dev/ui-polish-explore.png', fullPage: true });
+      }
     }
   });
 }
@@ -188,4 +191,64 @@ test('tag pagination shows ranges and resets after filtering', async ({ page }) 
   await expect(range).toHaveText('Showing 1–1 of 1');
   await page.getByRole('textbox', { name: 'Tags', exact: true }).fill('missing');
   await expect(range).toHaveText('Showing 0–0 of 0');
+});
+
+test.describe('browser date configuration', () => {
+  test.use({ locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+  test('all date consumers use runtime format or browser defaults independently of UI language', async ({ page }) => {
+    await setup(page);
+    await page
+      .context()
+      .addCookies([{ name: 'registry-ui-language', value: 'en', url: test.info().project.use.baseURL! }]);
+    const timestamp = images[0]!.LastUpdated;
+    const expected =
+      process.env.TEST_DATE_FORMAT === 'custom'
+        ? '16.04.2026 02:00'
+        : await page.evaluate(
+            (value) =>
+              new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)),
+            timestamp,
+          );
+    await page.route('**/api/registry/image?*', (route) => route.fulfill({ json: images[0] }));
+    await page.route('**/api/releases', (route) =>
+      route.fulfill({
+        json: {
+          releases: [
+            {
+              version: '0.7.0',
+              publishedAt: timestamp,
+              markdown: 'Example release',
+              url: 'https://github.com/crateview/registry-ui/releases/tag/v0.7.0',
+            },
+          ],
+        },
+      }),
+    );
+    await page.goto(`/image/${encodeURIComponent(names[0]!)}`);
+    await expect(page.locator('table tbody tr').first().locator('td').nth(5)).toHaveText(expected);
+    await page.getByRole('link', { name: 'v00', exact: true }).click();
+    await page.getByRole('button', { name: 'Metadata', exact: true }).click();
+    await expect(page.getByText(expected, { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: /Open changelog/ }).click();
+    await expect(page.getByRole('dialog').getByText(expected, { exact: true })).toBeVisible();
+    await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click();
+    await page.route('**/api/registry/status', (route) =>
+      route.fulfill({ json: { auth: false, user: '', monitoringEnabled: true, deleteEnabled: false } }),
+    );
+    await page.route('**/api/monitoring/overview?*', (route) =>
+      route.fulfill({
+        json: {
+          startedAt: Date.parse(timestamp),
+          lastSuccessAt: Date.parse(timestamp),
+          latest: null,
+          sources: {},
+          totals: null,
+          activity: [],
+          series: [],
+        },
+      }),
+    );
+    await page.goto('/home');
+    await expect(page.getByText(`Collection started: ${expected}`, { exact: true })).toBeVisible();
+  });
 });

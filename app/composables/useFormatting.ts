@@ -1,10 +1,10 @@
+import { formatDate } from '~/utils/date-format';
+
 export function useFormatting() {
   const { locale, t } = useI18n();
   const number = (value: number | string | undefined) => new Intl.NumberFormat(locale.value).format(Number(value || 0));
-  const date = (value?: string) =>
-    value && !Number.isNaN(Date.parse(value))
-      ? new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
-      : '—';
+  const config = useRuntimeConfig();
+  const date = (value?: string | number | Date | null) => formatDate(value, config.public.dateFormat);
   const bytes = (value?: number | string) => {
     const size = Number(value || 0);
     const unit = size > 0 ? Math.min(4, Math.floor(Math.log(size) / Math.log(1024))) : 0;
