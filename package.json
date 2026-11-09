@@ -29,20 +29,20 @@
     "test:auth:image": "node tests/accounts-image-integration.mjs"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.0",
+    "@iconify-json/lucide": "^1.2.151",
     "@nuxt/ui": "4.12.0",
     "@nuxtjs/i18n": "10.6.0",
     "bcryptjs": "^3.0.3",
     "markdown-it": "^15.0.3",
-    "nuxt": "4.6.3",
+    "nuxt": "4.6.4",
     "shiki": "^4.6.0",
-    "tailwindcss": "^4.1.0",
+    "tailwindcss": "^4.3.4",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@changesets/cli": "3.0.3",
     "@nuxt/eslint": "^1.15.0",
-    "@playwright/test": "^1.58.0",
+    "@playwright/test": "^1.65.0",
     "@types/markdown-it": "^14.1.0",
     "@types/node": "^26.6.6",
     "deepmerge": "file:vendor/deepmerge",
@@ -51,7 +51,7 @@
     "prettier-plugin-organize-imports": "^4.3.0",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.5",
+    "vitest": "^5.1.0",
     "vue-tsc": "^3.1.0"
   },
   "description": "A modern, themeable web UI for Docker and OCI container registries.",
